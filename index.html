@@ -577,6 +577,105 @@
             font-size: 16px;
             line-height: 1.6;
         }
+
+        /* ===== 직원 전용 편집 도구 툴바 ===== */
+        #staff-editor-toolbar {
+            display: none;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+            padding: 10px 14px;
+            border: 1.5px solid #a5d6a7;
+            border-radius: 10px;
+            align-items: center;
+            position: fixed;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            box-shadow: 0 4px 20px rgba(46,125,50,0.25), 0 2px 8px rgba(0,0,0,0.12);
+            max-width: calc(100vw - 32px);
+            width: max-content;
+        }
+
+        .staff-tool-btn {
+            padding: 7px 14px;
+            border: 1.5px solid #b2dfdb;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.18s ease;
+            color: #2e7d32;
+        }
+        .staff-tool-btn:hover {
+            background: #e8f5e9;
+            border-color: #66bb6a;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(46,125,50,0.15);
+        }
+        .staff-tool-btn.active-tool {
+            background: #2e7d32;
+            color: white;
+            border-color: #1b5e20;
+            box-shadow: 0 2px 8px rgba(46,125,50,0.35);
+        }
+        .staff-tool-btn.eraser-btn.active-tool {
+            background: #e53935;
+            border-color: #b71c1c;
+            box-shadow: 0 2px 8px rgba(229,57,53,0.35);
+        }
+
+        /* 그리기 도구 커서 */
+        .draw-cursor-active,
+        .draw-cursor-active * { cursor: crosshair !important; }
+        /* 지우개 커서 효과 */
+        .eraser-cursor-active,
+        .eraser-cursor-active * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Crect x='4' y='10' width='20' height='14' rx='3' fill='%23ffe0e0' stroke='%23e53935' stroke-width='2'/%3E%3Crect x='4' y='10' width='9' height='14' rx='2' fill='%23ef9a9a'/%3E%3Cline x1='4' y1='24' x2='24' y2='24' stroke='%23e53935' stroke-width='2'/%3E%3C/svg%3E") 14 24, cell !important; }
+        /* 텍스트 도구 커서 */
+        .textbox-cursor-active,
+        .textbox-cursor-active * { cursor: text !important; }
+
+        /* 색상 선택 팔레트 스와치 */
+        .draw-color-swatch {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            transition: transform 0.12s;
+            flex-shrink: 0;
+        }
+        .draw-color-swatch:hover { transform: scale(1.2); }
+        .draw-color-swatch.selected-swatch {
+            border: 2.5px solid #222;
+            transform: scale(1.28);
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #222;
+        }
+
+        /* 직원 추가 텍스트박스 - 초록 테두리로 구분 */
+        .staff-text-box {
+            border: 1.5px dashed #43a047 !important;
+            background: rgba(232, 245, 233, 0.85) !important;
+            color: #1b5e20 !important;
+        }
+        .staff-text-box:focus {
+            border: 1.5px solid #2e7d32 !important;
+            background: #fff !important;
+            box-shadow: 0 0 8px rgba(46,125,50,0.25) !important;
+        }
+        /* 지우개 모드에서 직원 요소에 호버 시 빨간 테두리 */
+        .eraser-mode-on .staff-text-box:hover,
+        .eraser-mode-on .staff-badge:hover {
+            border: 2px solid #e53935 !important;
+            cursor: pointer !important;
+            background: rgba(255,235,235,0.9) !important;
+        }
     </style>
 </head>
 <body>
@@ -681,6 +780,54 @@
                 <button class="btn btn-download" onclick="downloadHtml()">HTML 다운로드</button>
                 <button class="btn btn-download" style="background-color: #e74c3c;" onclick="downloadPdf()">PDF 다운로드</button>
             </div>
+        </div>
+
+        <!-- 직원 전용 편집 도구 툴바 -->
+        <div id="staff-editor-toolbar">
+            <span style="font-size:13px; font-weight:700; color:#2e7d32; margin-right:4px;">✏️ 편집 도구:</span>
+
+            <button class="staff-tool-btn" id="btn-draw" onclick="setStaffTool('draw')" title="드래그하면 자유 선이 그려집니다">
+                🖊 그리기
+            </button>
+
+            <button class="staff-tool-btn eraser-btn" id="btn-eraser" onclick="setStaffTool('eraser')" title="내가 추가한 요소 삭제. 원본 양식 불가.">
+                🧹 지우개
+            </button>
+
+            <button class="staff-tool-btn" id="btn-textbox" onclick="setStaffTool('textbox')" title="클릭한 위치에 타이핑 가능한 텍스트 박스를 추가합니다">
+                📝 텍스트 입력
+            </button>
+
+            <button class="staff-tool-btn" id="btn-pointer-default" onclick="setStaffTool('default')" style="background:#f5f5f5; color:#555; border-color:#ccc;">
+                ↖ 기본 모드
+            </button>
+
+            <div class="separator" style="background:#b2dfdb;"></div>
+
+            <div id="draw-options" style="display:none; align-items:center; gap:6px; flex-wrap:wrap;">
+                <span class="draw-color-label" style="font-size:11px;font-weight:600;color:#555;">색상:</span>
+                <div class="draw-color-swatch selected-swatch" style="background:#e53935;" data-color="#e53935" onclick="setDrawColor(this)"></div>
+                <div class="draw-color-swatch" style="background:#1565c0;" data-color="#1565c0" onclick="setDrawColor(this)"></div>
+                <div class="draw-color-swatch" style="background:#2e7d32;" data-color="#2e7d32" onclick="setDrawColor(this)"></div>
+                <div class="draw-color-swatch" style="background:#f57f17;" data-color="#f57f17" onclick="setDrawColor(this)"></div>
+                <div class="draw-color-swatch" style="background:#6a1b9a;" data-color="#6a1b9a" onclick="setDrawColor(this)"></div>
+                <div class="draw-color-swatch" style="background:#000000;" data-color="#000000" onclick="setDrawColor(this)"></div>
+                <input type="color" id="draw-custom-color" value="#e53935" title="직접 색상 선택"
+                    style="width:22px;height:22px;border:none;border-radius:4px;cursor:pointer;padding:0;"
+                    oninput="setDrawColorFromPicker(this.value)">
+                <span id="draw-thickness-label" style="font-size:11px;font-weight:600;color:#555;margin-left:4px;">굵기:</span>
+                <select id="draw-thickness" style="padding:3px 6px;border:1px solid #b2dfdb;border-radius:4px;font-size:12px;cursor:pointer;" onchange="setDrawThickness(this.value)">
+                    <option value="2">가는 선</option>
+                    <option value="4" selected>보통</option>
+                    <option value="7">굵게</option>
+                    <option value="12">아주 굵게</option>
+                </select>
+                <button class="staff-tool-btn" style="padding:4px 10px;font-size:11px;color:#c62828;border-color:#ef9a9a;" onclick="clearAllDrawings()">
+                    🗑 전체 삭제
+                </button>
+            </div>
+
+            <span style="font-size:11px; color:#777; margin-left:4px;" id="staff-tool-hint">도구를 선택하세요</span>
         </div>
 
         <div class="editor-toolbar" id="primary-editor-toolbar">
@@ -1006,6 +1153,7 @@
             document.getElementById('main-system-title').style.display = 'none';
             document.getElementById('primary-control-panel').style.display = 'none';
             document.getElementById('primary-editor-toolbar').style.display = 'none';
+            document.getElementById('staff-editor-toolbar').style.display = 'flex';
             renderStaffAssignedExamsDropdown();
         }
         setTimeout(adaptEditorToScreenSize, 300); 
@@ -1114,7 +1262,9 @@
 
             dataStorage.push({
                 pageNum: container.dataset.page, width: container.style.width, height: container.style.height,
-                bgImg: canvas ? canvas.toDataURL("image/png") : "", elements, badges
+                bgImg: canvas ? canvas.toDataURL("image/png") : "",
+                staffDrawImg: (function(){ const dc = container.querySelector('.staff-draw-canvas'); return dc ? dc.toDataURL("image/png") : ""; })(),
+                elements, badges
             });
         });
 
@@ -1361,6 +1511,10 @@
 
         document.getElementById('primary-editor-toolbar').style.display = 'none';
         document.getElementById('primary-control-panel').style.display = 'none';
+
+        // 직원 전용 편집 도구 툴바 표시
+        document.getElementById('staff-editor-toolbar').style.display = 'flex';
+        setStaffTool('default');
     }
 
     async function submitCompletedStaffExam() {
@@ -1396,7 +1550,9 @@
 
             submissionData.push({
                 pageNum: container.dataset.page, width: container.style.width, height: container.style.height,
-                bgImg: canvas ? canvas.toDataURL("image/png") : "", elements, badges
+                bgImg: canvas ? canvas.toDataURL("image/png") : "",
+                staffDrawImg: (function(){ const dc = container.querySelector('.staff-draw-canvas'); return dc ? dc.toDataURL("image/png") : ""; })(),
+                elements, badges
             });
         });
 
@@ -1642,7 +1798,9 @@
 
             dataStorage.push({
                 pageNum: container.dataset.page, width: container.style.width, height: container.style.height,
-                bgImg: canvas ? canvas.toDataURL("image/png") : "", elements, badges
+                bgImg: canvas ? canvas.toDataURL("image/png") : "",
+                staffDrawImg: (function(){ const dc = container.querySelector('.staff-draw-canvas'); return dc ? dc.toDataURL("image/png") : ""; })(),
+                elements, badges
             });
         });
 
@@ -1699,10 +1857,31 @@
                 createNumberBadge(interactiveLayer, 0, 0, badgeData.label, badgeData.isSelected, badgeData.style, badgeData.isLocked);
             });
 
+            // 직원 드로잉 캔버스 복원
+            if(data.staffDrawImg && data.staffDrawImg.length > 5) {
+                const drawCanvas = document.createElement('canvas');
+                drawCanvas.className = 'staff-draw-canvas';
+                const pw = parseInt(data.width) || 840;
+                const ph = parseInt(data.height) || 1180;
+                drawCanvas.width  = pw;
+                drawCanvas.height = ph;
+                drawCanvas.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:8000;pointer-events:none;touch-action:none;';
+                const dCtx = drawCanvas.getContext('2d');
+                const img = new Image();
+                img.src = data.staffDrawImg;
+                await new Promise(r => { img.onload = r; img.onerror = r; });
+                dCtx.drawImage(img, 0, 0);
+                interactiveLayer.appendChild(drawCanvas);
+            }
+
             attachAreaSelectionMechanics(interactiveLayer);
             editor.appendChild(pageContainer);
         }
-        setTimeout(adaptEditorToScreenSize, 100); 
+        setTimeout(adaptEditorToScreenSize, 100);
+        // 직원 도구 레이어 재바인딩 (직원 모드일 때만)
+        if(sessionUser && sessionUser.role === 'STAFF') {
+            setTimeout(() => bindStaffToolToLayers(), 200);
+        }
     }
 
     async function loadPdfTemplate() {
@@ -2479,7 +2658,9 @@
 
             dataStorage.push({
                 pageNum: container.dataset.page, width: container.style.width, height: container.style.height,
-                bgImg: canvas ? canvas.toDataURL("image/png") : "", elements, badges
+                bgImg: canvas ? canvas.toDataURL("image/png") : "",
+                staffDrawImg: (function(){ const dc = container.querySelector('.staff-draw-canvas'); return dc ? dc.toDataURL("image/png") : ""; })(),
+                elements, badges
             });
         });
         localStorage.setItem('interactive_exam_master_data', JSON.stringify(dataStorage));
@@ -2801,6 +2982,370 @@
         if(currentViewingSubmissionId) updateLiveSubmissionSnapshot(); else saveToLocalStorage();
         return badge;
     }
+
+    /* =========================================================
+       직원 전용 편집 도구 엔진 (그리기 · 지우개 · 텍스트 입력)
+       ========================================================= */
+    let currentStaffTool = 'default'; // 'default' | 'draw' | 'eraser' | 'textbox'
+
+    // 그리기 도구 상태
+    let drawColor     = '#e53935';
+    let drawThickness = 4;
+
+    // ── 도구 전환 ──────────────────────────────────────────────
+    function setStaffTool(tool) {
+        currentStaffTool = tool;
+
+        ['btn-draw','btn-eraser','btn-textbox','btn-pointer-default'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.classList.remove('active-tool');
+        });
+
+        document.body.classList.remove('draw-cursor-active','eraser-cursor-active','textbox-cursor-active');
+        const editorContainer = document.querySelector('.editor-container');
+        if(editorContainer) editorContainer.classList.remove('eraser-mode-on');
+
+        const drawOpts = document.getElementById('draw-options');
+        const hintEl   = document.getElementById('staff-tool-hint');
+
+        if(tool === 'draw') {
+            document.getElementById('btn-draw').classList.add('active-tool');
+            document.body.classList.add('draw-cursor-active');
+            if(drawOpts) {
+                drawOpts.style.display = 'flex';
+                // 색상 선택 표시
+                drawOpts.querySelectorAll('.draw-color-swatch, #draw-custom-color, .draw-color-label').forEach(el => el.style.display = '');
+                const thLabel = document.getElementById('draw-thickness-label');
+                if(thLabel) thLabel.textContent = '굵기:';
+            }
+            if(hintEl) hintEl.textContent = '마우스/터치로 드래그하면 선이 그려집니다';
+        } else if(tool === 'eraser') {
+            document.getElementById('btn-eraser').classList.add('active-tool');
+            document.body.classList.add('eraser-cursor-active');
+            if(editorContainer) editorContainer.classList.add('eraser-mode-on');
+            if(drawOpts) {
+                drawOpts.style.display = 'flex';
+                // 지우개 모드: 색상 숨기고 굵기(=지우개 크기)만 표시
+                drawOpts.querySelectorAll('.draw-color-swatch, #draw-custom-color, .draw-color-label').forEach(el => el.style.display = 'none');
+                const thLabel = document.getElementById('draw-thickness-label');
+                if(thLabel) thLabel.textContent = '지우개 크기:';
+            }
+            if(hintEl) hintEl.textContent = '누른 채 드래그하면 그린 선이 지워집니다. 텍스트 박스는 클릭으로 삭제.';
+        } else {
+            if(drawOpts) drawOpts.style.display = 'none';
+            if(tool === 'textbox') {
+                document.getElementById('btn-textbox').classList.add('active-tool');
+                document.body.classList.add('textbox-cursor-active');
+                if(hintEl) hintEl.textContent = '원하는 위치를 클릭하면 텍스트 박스가 생성됩니다';
+            } else {
+                document.getElementById('btn-pointer-default').classList.add('active-tool');
+                if(hintEl) hintEl.textContent = '기본 모드 – 번호 배지 클릭으로 답 표시, 텍스트 박스 편집 가능';
+            }
+        }
+
+        bindStaffToolToLayers();
+    }
+
+    // ── 그리기 도구 설정 ───────────────────────────────────────
+    function setDrawColor(swatchEl) {
+        drawColor = swatchEl.dataset.color;
+        document.querySelectorAll('.draw-color-swatch').forEach(s => s.classList.remove('selected-swatch'));
+        swatchEl.classList.add('selected-swatch');
+        document.getElementById('draw-custom-color').value = drawColor;
+    }
+    function setDrawColorFromPicker(val) {
+        drawColor = val;
+        document.querySelectorAll('.draw-color-swatch').forEach(s => s.classList.remove('selected-swatch'));
+    }
+    function setDrawThickness(val) {
+        drawThickness = parseInt(val);
+    }
+    function clearAllDrawings() {
+        if(!confirm('내가 그린 선을 모두 삭제하시겠습니까?')) return;
+        document.querySelectorAll('.staff-draw-canvas').forEach(c => {
+            const ctx = c.getContext('2d');
+            ctx.clearRect(0, 0, c.width, c.height);
+        });
+        saveStaffAnswerState();
+    }
+
+    // ── 레이어에 드로잉 캔버스 생성/반환 ──────────────────────
+    function getOrCreateDrawCanvas(layer) {
+        let canvas = layer.querySelector('.staff-draw-canvas');
+        if(!canvas) {
+            const pageContainer = layer.closest('.pdf-page-container');
+            const w = parseInt(pageContainer.style.width)  || pageContainer.offsetWidth;
+            const h = parseInt(pageContainer.style.height) || pageContainer.offsetHeight;
+
+            canvas = document.createElement('canvas');
+            canvas.className = 'staff-draw-canvas';
+            canvas.width  = w;
+            canvas.height = h;
+            canvas.style.cssText = `
+                position:absolute; left:0; top:0;
+                width:100%; height:100%;
+                z-index:8000; pointer-events:none;
+                touch-action:none;
+            `;
+            layer.appendChild(canvas);
+        }
+        return canvas;
+    }
+
+    // ── 스케일 헬퍼 ───────────────────────────────────────────
+    function getEditorScale() {
+        const editor = document.getElementById('editor');
+        if(editor && editor.style.transform && editor.style.transform.includes('scale')) {
+            return parseFloat(editor.style.transform.replace('scale(','').replace(')','')) || 1;
+        }
+        return 1;
+    }
+
+    function getLayerPos(e, layer) {
+        const rect  = layer.getBoundingClientRect();
+        const scale = getEditorScale();
+        return {
+            x: (e.clientX - rect.left) / scale,
+            y: (e.clientY - rect.top)  / scale
+        };
+    }
+    function getTouchLayerPos(t, layer) {
+        const rect  = layer.getBoundingClientRect();
+        const scale = getEditorScale();
+        return {
+            x: (t.clientX - rect.left) / scale,
+            y: (t.clientY - rect.top)  / scale
+        };
+    }
+
+    // ── 드로잉 + 지우개 통합 이벤트 바인딩 ──────────────────────
+    function bindDrawingToLayer(layer) {
+        // 이전 핸들러 완전 제거
+        if(layer._staffPointerDown) {
+            layer.removeEventListener('mousedown',  layer._staffPointerDown);
+            layer.removeEventListener('touchstart', layer._staffTouchStart);
+        }
+
+        // ── 공통: 도구별 캔버스 스트로크 시작 ─────────────────
+        function startStroke(clientX, clientY, isMouse) {
+            const tool = currentStaffTool;
+            if(tool !== 'draw' && tool !== 'eraser') return null;
+
+            const canvas = getOrCreateDrawCanvas(layer);
+            // 지우개 모드: 캔버스가 이벤트를 받아야 하므로 pointer-events 조정
+            canvas.style.pointerEvents = (tool === 'eraser') ? 'auto' : 'none';
+
+            const ctx = canvas.getContext('2d');
+            const eraserSize = drawThickness * 6 + 12; // 지우개 반경 (굵기 설정 연동)
+
+            // 첫 점 처리
+            function applyPoint(pos) {
+                if(tool === 'draw') {
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x, pos.y);
+                } else {
+                    // destination-out 으로 해당 원형 영역 지우기
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'destination-out';
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, eraserSize, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            if(tool === 'draw') {
+                ctx.beginPath();
+                ctx.strokeStyle = drawColor;
+                ctx.lineWidth   = drawThickness;
+                ctx.lineCap     = 'round';
+                ctx.lineJoin    = 'round';
+                const startPos = isMouse
+                    ? getLayerPos({ clientX, clientY }, layer)
+                    : getTouchLayerPos({ clientX, clientY }, layer);
+                ctx.moveTo(startPos.x, startPos.y);
+            } else {
+                const startPos = isMouse
+                    ? getLayerPos({ clientX, clientY }, layer)
+                    : getTouchLayerPos({ clientX, clientY }, layer);
+                applyPoint(startPos);
+            }
+
+            return { ctx, applyPoint, eraserSize };
+        }
+
+        // ── 마우스 핸들러 ──────────────────────────────────────
+        layer._staffPointerDown = function(e) {
+            const tool = currentStaffTool;
+            if(tool !== 'draw' && tool !== 'eraser') return;
+            // 지우개 모드에서 텍스트박스 클릭 → 삭제 처리 (mousedown 아닌 click에서)
+            if(tool === 'eraser' && e.target.classList.contains('staff-text-box')) return;
+
+            e.preventDefault(); e.stopPropagation();
+
+            const stroke = startStroke(e.clientX, e.clientY, true);
+            if(!stroke) return;
+            const { applyPoint } = stroke;
+
+            const onMove = (ev) => {
+                const pos = getLayerPos(ev, layer);
+                applyPoint(pos);
+            };
+            const onUp = () => {
+                const canvas = layer.querySelector('.staff-draw-canvas');
+                if(canvas) canvas.style.pointerEvents = 'none';
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup',   onUp);
+                saveStaffAnswerState();
+            };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup',   onUp);
+        };
+
+        // ── 터치 핸들러 ───────────────────────────────────────
+        layer._staffTouchStart = function(e) {
+            const tool = currentStaffTool;
+            if(tool !== 'draw' && tool !== 'eraser') return;
+            if(tool === 'eraser' && e.target.classList.contains('staff-text-box')) return;
+
+            e.preventDefault(); e.stopPropagation();
+
+            const t0     = e.touches[0];
+            const stroke = startStroke(t0.clientX, t0.clientY, false);
+            if(!stroke) return;
+            const { applyPoint } = stroke;
+
+            const onMove = (ev) => {
+                ev.preventDefault();
+                const pos = getTouchLayerPos(ev.touches[0], layer);
+                applyPoint(pos);
+            };
+            const onEnd = () => {
+                const canvas = layer.querySelector('.staff-draw-canvas');
+                if(canvas) canvas.style.pointerEvents = 'none';
+                layer.removeEventListener('touchmove', onMove);
+                layer.removeEventListener('touchend',  onEnd);
+                layer.removeEventListener('touchcancel', onEnd);
+                saveStaffAnswerState();
+            };
+            layer.addEventListener('touchmove',   onMove,  { passive: false });
+            layer.addEventListener('touchend',    onEnd);
+            layer.addEventListener('touchcancel', onEnd);
+        };
+
+        layer.addEventListener('mousedown',  layer._staffPointerDown);
+        layer.addEventListener('touchstart', layer._staffTouchStart, { passive: false });
+    }
+
+    // ── 레이어 바인딩 전체 ─────────────────────────────────────
+    function bindStaffToolToLayers() {
+        document.querySelectorAll('.interactive-layer').forEach(layer => {
+            // 텍스트박스 클릭 핸들러
+            if(layer._staffClickHandler) {
+                layer.removeEventListener('click', layer._staffClickHandler);
+            }
+            layer._staffClickHandler = (e) => staffLayerClickHandler(e, layer);
+            layer.addEventListener('click', layer._staffClickHandler);
+
+            // 그리기+지우개 핸들러
+            bindDrawingToLayer(layer);
+        });
+
+        // 텍스트박스에 지우개 클릭 연결
+        document.querySelectorAll('.staff-text-box').forEach(el => {
+            if(el._tbEraserHandler) el.removeEventListener('click', el._tbEraserHandler);
+            el._tbEraserHandler = (e) => {
+                if(currentStaffTool !== 'eraser') return;
+                e.preventDefault(); e.stopPropagation();
+                if(confirm('이 텍스트 박스를 삭제하시겠습니까?')) {
+                    el.remove();
+                    saveStaffAnswerState();
+                }
+            };
+            el.addEventListener('click', el._tbEraserHandler);
+        });
+    }
+
+    function staffLayerClickHandler(e, layer) {
+        if(currentStaffTool !== 'textbox') return;
+        if(e.target.classList.contains('staff-text-box')) return;
+        if(e.target !== layer && !e.target.classList.contains('staff-draw-canvas')) return;
+
+        e.preventDefault(); e.stopPropagation();
+
+        const rect  = layer.getBoundingClientRect();
+        const scale = getEditorScale();
+        createStaffTextBox(layer, (e.clientX - rect.left) / scale, (e.clientY - rect.top) / scale);
+    }
+
+    // ── 직원 텍스트 박스 생성 ──────────────────────────────────
+    function createStaffTextBox(layer, x, y) {
+        const box = document.createElement('div');
+        box.className = 'movable-box staff-text-box';
+        box.contentEditable = 'true';
+        box.style.left      = (x - 5)  + 'px';
+        box.style.top       = (y - 14) + 'px';
+        box.style.width     = '180px';
+        box.style.minHeight = '32px';
+        box.style.fontSize  = '16px';
+        box.style.fontFamily = "'맑은 고딕', Arial, sans-serif";
+        box.style.zIndex    = '9000';
+        box.setAttribute('data-staff-added', 'true');
+
+        // 드래그 이동
+        let isDragging = false, startX, startY, initL, initT;
+        box.addEventListener('mousedown', function(e) {
+            if(currentStaffTool === 'eraser') return;
+            if(e.shiftKey || e.button === 2) return;
+            const r = box.getBoundingClientRect();
+            if(e.clientX > r.right - 16 && e.clientY > r.bottom - 16) return;
+            isDragging = true;
+            startX = e.clientX; startY = e.clientY;
+            initL  = parseFloat(box.style.left) || 0;
+            initT  = parseFloat(box.style.top)  || 0;
+            e.stopPropagation();
+            const onMove = (ev) => {
+                if(!isDragging) return;
+                const ed = document.getElementById('editor');
+                let sc = 1;
+                if(ed.style.transform && ed.style.transform.includes('scale'))
+                    sc = parseFloat(ed.style.transform.replace('scale(','').replace(')',''));
+                box.style.left = (initL + (ev.clientX - startX) / sc) + 'px';
+                box.style.top  = (initT + (ev.clientY - startY) / sc) + 'px';
+            };
+            const onUp = () => {
+                isDragging = false;
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+                saveStaffAnswerState();
+            };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        });
+
+        box._eraserHandler = (e) => staffEraserClickHandler(e, box);
+        box.addEventListener('click', box._eraserHandler);
+        box.addEventListener('input', () => saveStaffAnswerState());
+        box.addEventListener('blur',  () => saveStaffAnswerState());
+
+        layer.appendChild(box);
+        box.focus();
+        saveStaffAnswerState();
+    }
+
+    // ── 스냅샷 저장 ───────────────────────────────────────────
+    function saveStaffAnswerState() {
+        if(currentViewingSubmissionId) updateLiveSubmissionSnapshot();
+    }
+
+    /* ===  staff tool 글로벌 바인딩 === */
+    window.setStaffTool         = setStaffTool;
+    window.setDrawColor         = setDrawColor;
+    window.setDrawColorFromPicker = setDrawColorFromPicker;
+    window.setDrawThickness     = setDrawThickness;
+    window.clearAllDrawings     = clearAllDrawings;
 
     /* === 인라인 onclick 핸들러를 위한 전역(window) 명시 바인딩 === */
     window.executeSystemLogin = executeSystemLogin;
