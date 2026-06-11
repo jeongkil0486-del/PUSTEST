@@ -2777,8 +2777,12 @@
             const ctx = offCanvas.getContext('2d');
 
             // 1) PDF 배경 이미지 렌더
-            const bgCanvas = container.querySelector('canvas');
+            const bgCanvas = container.querySelector('canvas.pdf-canvas-layer');
             if (bgCanvas) ctx.drawImage(bgCanvas, 0, 0);
+
+            // 1-2) 직원이 그린 드로잉 레이어 합성
+            const drawCanvas = container.querySelector('canvas.staff-draw-canvas');
+            if (drawCanvas) ctx.drawImage(drawCanvas, 0, 0);
 
             // 2) 인터랙티브 레이어 요소들을 캔버스에 텍스트/도형으로 렌더
             const layer = container.querySelector('.interactive-layer');
