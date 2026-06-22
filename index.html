@@ -169,7 +169,7 @@
   .start-exam-btn:hover { transform:translateY(-1px); box-shadow:0 5px 16px rgba(37,99,235,.4); }
 
   /* ══ 제어바 ══ */
-  .controlbar { width:95%; max-width:1040px; margin:0 auto 20px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+  .controlbar { width:95%; max-width:1040px; margin:0 auto 20px; display:flex; justify-content:center; gap:12px; flex-wrap:nowrap; }
   #gradeBtn   { padding:14px 32px; font-size:14px; font-weight:800; border-radius:10px; border:none; cursor:pointer;
     background:linear-gradient(135deg,var(--blue2),var(--sky)); color:#fff; box-shadow:0 4px 14px rgba(37,99,235,.3); transition:.2s; }
   #gradeBtn:hover:not(:disabled) { transform:translateY(-1px); }
@@ -261,15 +261,40 @@
     .navbar { flex-direction:column; gap:8px; text-align:center; margin:10px auto; padding:12px; }
     .navbar .user-info { flex-direction:column; gap:8px; }
     .upload-zone { flex-direction:column; align-items:flex-start; padding:12px; }
-    .sheet { padding:18px 14px; border-width:2px; }
-    table.info td { padding:4px 5px; font-size:10px; height:auto; }
-    table.info td.label { width:56px; font-size:10px; }
+    .sheet { padding:14px 10px; border-width:2px; }
+
+    /* 소속/사번/성명/점수 — 모바일에서 2행으로 분리 */
+    table.info { display:block; }
+    table.info tbody { display:block; }
+    table.info tr { display:grid; grid-template-columns:56px 1fr 56px 1fr; margin-bottom:4px; }
+    table.info tr:first-child { grid-template-rows:auto auto; }
+    table.info td { display:block; border:1px solid var(--navy); padding:5px 6px; height:auto; font-size:11px; }
+    table.info td.label { width:auto; font-size:10px; background:#f0f4ff; text-align:center; padding:5px 2px; }
+    .infoInput { font-size:13px; padding:3px 4px; }
+
     .columns { flex-direction:column; padding-top:15px; }
     .col { padding:0 !important; border:none !important; }
-    .sheet .q { display:none; background:#f8fafc; border:1.5px solid var(--border); padding:15px; border-radius:12px; margin-bottom:14px; }
+    .sheet .q { display:none; background:#f8fafc; border:1.5px solid var(--border); padding:14px; border-radius:12px; margin-bottom:0; }
     .sheet .q.active-mobile-q { display:block !important; }
     .opt { font-size:13px; padding:8px; background:#fff; border:1.5px solid #f1f5f9; margin:5px 0; }
     .input-row { max-width:100%; }
+
+    /* 제어바 3버튼 한 줄 */
+    .controlbar { gap:6px; padding:0 8px; }
+    #backListBtn { padding:10px 10px; font-size:12px; border-radius:8px; flex:1; }
+    #gradeBtn    { padding:10px 10px; font-size:12px; border-radius:8px; flex:1; }
+    #submitBtn   { padding:10px 10px; font-size:12px; border-radius:8px; flex:1; }
+
+    /* 모바일 내비 — 문제 하단 인라인 배치 */
+    .mobile-nav-bar { display:none; }
+    .mob-inline-nav { display:flex !important; justify-content:space-between; align-items:center;
+      gap:8px; margin-top:16px; padding-top:14px; border-top:1.5px dashed var(--border); }
+    .mob-nav-btn { flex:1; padding:11px 6px; background:var(--navy); color:#fff; border:none;
+      border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; transition:.15s; }
+    .mob-nav-btn:hover:not(:disabled) { background:var(--blue2); }
+    .mob-nav-btn:disabled { background:#cbd5e0; cursor:not-allowed; }
+    .mob-page-indicator { font-size:12px; font-weight:800; color:var(--navy); background:#fff;
+      padding:9px 12px; border-radius:10px; border:2px solid var(--border); white-space:nowrap; text-align:center; }
   }
 
   @media print {
@@ -448,8 +473,8 @@
   </div>
 </div>
 
-<!-- 모바일 내비 -->
-<div class="mobile-nav-bar" id="mobileNavBar">
+<!-- 모바일 내비 (데스크탑용 상단 위치 — 모바일에서는 문제 하단 인라인 내비 사용) -->
+<div class="mobile-nav-bar" id="mobileNavBar" style="display:none;">
   <button class="mob-nav-btn" id="mobPrevBtn" onclick="changeMobileQuestion(-1)">◀ 이전</button>
   <div class="mob-page-indicator" id="mobIndicator">1 / 10</div>
   <button class="mob-nav-btn" id="mobNextBtn" onclick="changeMobileQuestion(1)">다음 ▶</button>
@@ -1181,29 +1206,52 @@ function checkMobileGradeReadyButton() {
 }
 
 function updateMobileQuestionVisibility() {
-  const isMobile=window.innerWidth<=768;
-  const navBar=document.getElementById('mobileNavBar');
-  if(isMobile&&!isGradedCompleted) {
-    navBar.style.display='flex';
-    document.getElementById('mobIndicator').textContent=`${mobileActiveIdx+1} / ${totalExamQsCount}`;
-    document.getElementById('mobPrevBtn').disabled=(mobileActiveIdx===0);
-    document.getElementById('mobNextBtn').disabled=(mobileActiveIdx===totalExamQsCount-1);
-    document.querySelectorAll('.sheet .q').forEach(el=>{
-      el.classList.toggle('active-mobile-q', parseInt(el.dataset.qidx)===mobileActiveIdx);
+  const isMobile = window.innerWidth <= 768;
+  // 상단 고정 내비바는 항상 숨김 (모바일/데스크탑 모두)
+  document.getElementById('mobileNavBar').style.display = 'none';
+
+  if (isMobile && !isGradedCompleted) {
+    // 모든 문제 숨김, active만 표시
+    document.querySelectorAll('.sheet .q').forEach(el => {
+      const isActive = parseInt(el.dataset.qidx) === mobileActiveIdx;
+      el.classList.toggle('active-mobile-q', isActive);
+      el.style.display = '';
+
+      // 기존 인라인 내비 제거
+      const old = el.querySelector('.mob-inline-nav');
+      if (old) old.remove();
+
+      // active 문제 하단에 내비 삽입
+      if (isActive) {
+        const nav = document.createElement('div');
+        nav.className = 'mob-inline-nav';
+        nav.innerHTML = `
+          <button class="mob-nav-btn" ${mobileActiveIdx === 0 ? 'disabled' : ''} onclick="changeMobileQuestion(-1)">◀ 이전</button>
+          <div class="mob-page-indicator">${mobileActiveIdx + 1} / ${totalExamQsCount}</div>
+          <button class="mob-nav-btn" ${mobileActiveIdx === totalExamQsCount - 1 ? 'disabled' : ''} onclick="changeMobileQuestion(1)">다음 ▶</button>`;
+        el.appendChild(nav);
+      }
     });
   } else {
-    navBar.style.display='none';
-    document.querySelectorAll('.sheet .q').forEach(el=>{ el.classList.remove('active-mobile-q'); el.style.display=''; });
+    // 데스크탑: 모든 문제 표시, 인라인 내비 전부 제거
+    document.querySelectorAll('.sheet .q').forEach(el => {
+      el.classList.remove('active-mobile-q');
+      el.style.display = '';
+      const old = el.querySelector('.mob-inline-nav');
+      if (old) old.remove();
+    });
   }
 }
 window.addEventListener('resize', updateMobileQuestionVisibility);
 
 function changeMobileQuestion(dir) {
-  let next=mobileActiveIdx+dir;
-  if(next>=0&&next<totalExamQsCount) {
-    mobileActiveIdx=next;
+  let next = mobileActiveIdx + dir;
+  if (next >= 0 && next < totalExamQsCount) {
+    mobileActiveIdx = next;
     updateMobileQuestionVisibility();
-    document.querySelector('.sheet').scrollIntoView({behavior:'smooth',block:'start'});
+    // 활성 문제 상단으로 스크롤
+    const activeQ = document.querySelector(`.sheet .q[data-qidx="${mobileActiveIdx}"]`);
+    if (activeQ) activeQ.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 
