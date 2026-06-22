@@ -4,460 +4,293 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PUS TEST</title>
-
-<!-- Firebase CDN (v9 compat) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-
 <style>
   @page { size: A4 portrait; margin: 20mm 15mm 20mm 15mm; }
-  * { box-sizing: border-box; }
-  :root {
-    --navy:   #0f1c3f;
-    --blue:   #1648c8;
-    --blue2:  #2563eb;
-    --sky:    #3b82f6;
-    --purple: #7c3aed;
-    --green:  #059669;
-    --red:    #dc2626;
-    --gray:   #64748b;
-    --border: #e2e8f0;
-    --bg:     #f1f5f9;
-    --card:   #ffffff;
-    --text:   #1e293b;
-    --sub:    #475569;
-  }
+  * { box-sizing: border-box; transition: all 0.2s ease; }
+  
+  body { font-family: "Malgun Gothic","Apple SD Gothic Neo",sans-serif; background:#f0f4f8; margin:0; padding:0; color: #2d3748; }
 
-  body { font-family: "Malgun Gothic","Apple SD Gothic Neo",sans-serif; background: var(--bg); margin:0; padding:0; color: var(--text); }
+  /* ═══════════ 로그인 화면 구조 ═══════════ */
+  .login-wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #1a2a50 0%, #2d3748 100%); padding: 20px; }
+  .login-container { width: 100%; max-width: 380px; background: #fff; padding: 40px 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); text-align: center; }
+  .login-container h2 { margin-top: 0; color: #1a2a50; margin-bottom: 30px; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+  .form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+  
+  .form-group label { font-size: 14px; font-weight: 800; color: #4a5568; letter-spacing: 0.5px; text-align: center; }
+  .login-input { border: 2px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 15px; outline: none; background: #f8fafc; text-align: center; width: 100%; }
+  .login-input:focus { border-color: #1a4fb4; background: #fff; box-shadow: 0 0 0 3px rgba(26,79,180,0.15); }
+  .login-btn { width: 100%; padding: 14px; background: #1a4fb4; color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 12px rgba(26,79,180,0.3); }
 
-  /* ══ 로그인 ══ */
-  .login-wrapper { display:flex; justify-content:center; align-items:center; min-height:100vh;
-    background: linear-gradient(135deg, #0f1c3f 0%, #1648c8 60%, #7c3aed 100%); padding:20px; }
-  .login-container { width:100%; max-width:380px; background:#fff; padding:44px 36px 36px;
-    border-radius:20px; box-shadow:0 24px 60px rgba(0,0,0,0.35); text-align:center; }
-  .login-logo { font-size:36px; margin-bottom:6px; }
-  .login-container h2 { margin:0 0 6px; color:var(--navy); font-size:22px; font-weight:900; letter-spacing:1px; }
-  .login-subtitle { font-size:12px; color:var(--gray); margin-bottom:28px; }
-  .form-group { margin-bottom:16px; text-align:left; }
-  .form-group label { font-size:11px; font-weight:800; color:var(--sub); letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:6px; }
-  .login-input { border:2px solid var(--border); border-radius:10px; padding:12px 14px; font-size:14px;
-    outline:none; background:#f8fafc; width:100%; transition:.2s; }
-  .login-input:focus { border-color:var(--blue2); background:#fff; box-shadow:0 0 0 4px rgba(37,99,235,.12); }
-  .login-btn { width:100%; padding:14px; background:linear-gradient(135deg,var(--blue),var(--purple));
-    color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:800; cursor:pointer; margin-top:8px;
-    box-shadow:0 6px 20px rgba(22,72,200,.35); letter-spacing:.5px; transition:.2s; }
-  .login-btn:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(22,72,200,.45); }
+  /* 최상단 네비게이션바 */
+  .navbar { width: 95%; max-width: 1000px; margin: 25px auto 20px; background: #1a2a50; color: #fff; padding: 16px 24px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(26,42,80,0.15); }
+  .navbar .brand { font-size: 18px; font-weight: 800; letter-spacing: 0.5px; }
+  .navbar .user-info { font-size: 14px; display: flex; align-items: center; gap: 15px; }
+  .logout-btn { background: #e53e3e; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
 
-  /* ══ 네비바 ══ */
-  .navbar { width:95%; max-width:1040px; margin:22px auto 18px; background:var(--navy);
-    color:#fff; padding:14px 24px; border-radius:14px; display:flex; justify-content:space-between;
-    align-items:center; box-shadow:0 6px 24px rgba(15,28,63,.25); }
-  .navbar .brand { font-size:17px; font-weight:900; letter-spacing:1.5px; display:flex; align-items:center; gap:8px; }
-  .brand-badge { background:linear-gradient(135deg,var(--blue2),var(--purple)); font-size:10px; padding:2px 8px;
-    border-radius:20px; letter-spacing:1px; font-weight:700; }
-  .navbar .user-info { font-size:13px; display:flex; align-items:center; gap:12px; }
-  .user-chip { background:rgba(255,255,255,.1); padding:5px 14px; border-radius:20px; font-size:12px; font-weight:700; }
-  .logout-btn { background:var(--red); color:#fff; border:none; padding:7px 15px; border-radius:8px;
-    font-size:12px; font-weight:800; cursor:pointer; transition:.2s; letter-spacing:.3px; }
-  .logout-btn:hover { background:#b91c1c; }
+  /* ═══════════ 관리자 페이지 레이아웃 (상하 1열) ═══════════ */
+  .admin-panel { width: 95%; max-width: 1000px; margin: 0 auto 25px; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+  .panel-header { color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; background: #1a2a50; }
+  .panel-header span { font-size: 16px; font-weight: 800; letter-spacing: 0.5px; }
+  .panel-body { padding: 25px; display: flex; flex-direction: column; gap: 25px; }
 
-  /* ══ 관리자 패널 ══ */
-  .admin-panel { width:95%; max-width:1040px; margin:0 auto 30px; }
-  .admin-grid { display:flex; flex-direction:column; gap:20px; }
-
-  .sub-card { background:var(--card); border-radius:16px; overflow:hidden;
-    box-shadow:0 2px 12px rgba(0,0,0,.06); border:1px solid var(--border); }
-  .card-header { padding:15px 22px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); }
-  .card-header-icon { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
-  .icon-blue  { background:linear-gradient(135deg,#dbeafe,#bfdbfe); }
-  .icon-green { background:linear-gradient(135deg,#d1fae5,#a7f3d0); }
-  .icon-purple{ background:linear-gradient(135deg,#ede9fe,#ddd6fe); }
-  .icon-amber { background:linear-gradient(135deg,#fef3c7,#fde68a); }
-  .icon-sky   { background:linear-gradient(135deg,#e0f2fe,#bae6fd); }
-  .card-header h3 { margin:0; font-size:14px; color:var(--navy); font-weight:800; }
-  .card-header small { font-size:11px; color:var(--gray); margin-left:4px; font-weight:500; }
-  .card-body { padding:20px 22px; }
-
+  .sub-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.02); width: 100%; }
+  .sub-card h3 { margin-top: 0; font-size: 15px; color: #1a2a50; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; margin-bottom: 16px; font-weight: 800; }
+  
+  .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .admin-table th, .admin-table td { border-bottom: 1px solid #edf2f7; padding: 10px 12px; text-align: center; }
+  .admin-table th { background: #f8fafc; color: #4a5568; font-weight: 800; border-top: 1px solid #edf2f7; }
+  .clickable-title { color: #1a4fb4; font-weight: 800; cursor: pointer; text-decoration: none; }
+  .clickable-title:hover { text-decoration: underline; color: #6b35a8; }
+  
   /* 파일 업로드 */
-  .upload-zone { background:linear-gradient(135deg,#eff6ff,#f0fdf4); border:2px dashed #93c5fd;
-    border-radius:12px; padding:14px 20px; display:flex; align-items:center; gap:12px; }
-  .upload-zone label { font-size:13px; font-weight:800; color:var(--blue2); white-space:nowrap; }
-  .upload-zone input[type="file"] { font-size:13px; color:var(--sub); cursor:pointer; }
+  .file-upload-box { width: 100%; background: #ebf8ff; border: 2px dashed #3182ce; padding: 12px 20px; border-radius: 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; }
+  .file-upload-box label { font-size: 14px; font-weight: 800; color: #2b6cb0; margin: 0; padding: 0; white-space: nowrap; }
+  .file-upload-box input[type="file"] { font-size: 13px; color: #4a5568; cursor: pointer; margin: 0; padding: 0; display: inline-block; }
 
-  /* 테이블 */
-  .admin-table { width:100%; border-collapse:collapse; font-size:13px; }
-  .admin-table th { background:#f8fafc; color:var(--sub); font-weight:800; font-size:11px;
-    letter-spacing:.5px; text-transform:uppercase; padding:10px 12px; text-align:center;
-    border-bottom:2px solid var(--border); }
-  .admin-table td { padding:11px 12px; text-align:center; border-bottom:1px solid #f1f5f9; }
-  .admin-table tr:last-child td { border-bottom:none; }
-  .admin-table tr:hover td { background:#f8fafc; }
-  .clickable-title { color:var(--blue2); font-weight:700; cursor:pointer; text-decoration:none; transition:.15s; }
-  .clickable-title:hover { color:var(--purple); text-decoration:underline; }
+  /* 에디터 구조 */
+  .q-editor-list { display: flex; flex-direction: column; gap: 14px; max-height: 500px; overflow-y: auto; padding-right: 5px; }
+  .q-editor { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; }
+  .q-editor-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .q-editor-num { background: #6b35a8; color: #fff; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px; }
+  .del-q-btn { margin-left: auto; background: #e53e3e; color: #fff; border: none; border-radius: 4px; font-size: 12px; padding: 4px 10px; cursor: pointer; }
+  .q-editor textarea, .q-editor input[type=text] { width: 100%; border: 1.5px solid #cbd5e0; border-radius: 6px; padding: 8px 12px; font-size: 13px; outline: none; background: #fff; }
+  .q-editor label.small { font-size: 11px; font-weight: bold; color: #4a5568; display: block; margin-top: 8px; margin-bottom: 4px; }
 
-  /* 뱃지 */
-  .history-badge { display:inline-block; font-size:11px; color:var(--sub); background:#f1f5f9;
-    padding:3px 9px; border-radius:20px; max-width:220px; overflow:hidden; text-overflow:ellipsis;
-    white-space:nowrap; font-weight:600; border:1px solid var(--border); }
-  .badge-pass { background:#dcfce7; color:#166534; font-size:11px; font-weight:800;
-    padding:3px 10px; border-radius:20px; }
-  .badge-fail { background:#fee2e2; color:#991b1b; font-size:11px; font-weight:800;
-    padding:3px 10px; border-radius:20px; }
+  .history-badge { display: inline-block; font-size: 11px; color: #4a5568; background: #edf2f7; padding: 3px 8px; border-radius: 4px; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: bold; }
 
-  /* 인풋 행 */
-  .input-row { display:flex; gap:8px; margin-bottom:14px; max-width:520px; }
-  .input-row input { flex:1; padding:10px 14px; border:2px solid var(--border); border-radius:9px;
-    font-size:13px; outline:none; transition:.2s; }
-  .input-row input:focus { border-color:var(--blue2); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+  /* 문항 에디터 버튼/레이아웃 */
+  .add-q-btn { background: #2f855a; color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 13px; font-weight: 700; cursor: pointer; margin-right: 6px; }
+  .add-q-btn:hover { background: #276749; }
+  .add-opt-btn { background: #3182ce; color: #fff; border: none; border-radius: 4px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 6px; }
+  .opts-editor { display: flex; flex-direction: column; gap: 5px; margin: 6px 0; }
+  .opt-row { display: flex; align-items: center; gap: 6px; }
+  .opt-row span { font-size: 13px; font-weight: bold; color: #4a5568; min-width: 20px; }
+  .opt-row input[type=text] { flex: 1; border: 1.5px solid #cbd5e0; border-radius: 4px; padding: 4px 8px; font-size: 13px; outline: none; }
+  .q-editor textarea { width: 100%; border: 1.5px solid #cbd5e0; border-radius: 6px; padding: 8px 12px; font-size: 13px; outline: none; background: #fff; resize: vertical; }
 
-  /* 버튼 계열 */
-  .btn { border:none; border-radius:8px; font-weight:700; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:4px; }
-  .btn:hover { filter:brightness(1.07); transform:translateY(-1px); }
-  .btn-blue   { background:var(--blue2); color:#fff; padding:8px 18px; font-size:13px; }
-  .btn-green  { background:var(--green); color:#fff; padding:8px 18px; font-size:13px; }
-  .btn-purple { background:var(--purple); color:#fff; padding:8px 18px; font-size:13px; }
-  .btn-red    { background:var(--red); color:#fff; padding:6px 12px; font-size:11px; }
-  .btn-gray   { background:var(--gray); color:#fff; padding:6px 12px; font-size:11px; }
-  .btn-sm     { padding:4px 10px; font-size:11px; border-radius:6px; }
-  .btn-outline-red { background:#fff; color:var(--red); border:1.5px solid #fca5a5; padding:4px 10px; font-size:11px; border-radius:6px; font-weight:700; cursor:pointer; transition:.15s; }
-  .btn-outline-red:hover { background:#fee2e2; }
+  /* 직원 대시보드 */
+  .user-dashboard { width: 95%; max-width: 1000px; margin: 0 auto 25px; background: #fff; padding: 25px; border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+  .user-dashboard h2 { margin-top: 0; color: #1a2a50; border-bottom: 2px solid #1a4fb4; padding-bottom: 12px; font-size: 20px; font-weight: 800; }
+  .exam-list-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  .exam-list-table th, .exam-list-table td { border-bottom: 1px solid #edf2f7; padding: 14px 10px; text-align: center; font-size: 14px; }
+  .exam-list-table th { background: #f8fafc; font-weight: 800; color: #4a5568; }
+  .start-exam-btn { padding: 8px 18px; background: #1a4fb4; color:#fff; border:none; border-radius:6px; font-weight:700; cursor:pointer; }
 
-  /* 에디터 */
-  .q-editor-list { display:flex; flex-direction:column; gap:12px; max-height:480px; overflow-y:auto; padding-right:4px; }
-  .q-editor { background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:16px; }
-  .q-editor-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
-  .q-editor-num { background:linear-gradient(135deg,var(--purple),#a855f7); color:#fff;
-    font-size:11px; font-weight:800; padding:3px 9px; border-radius:5px; }
-  .del-q-btn { margin-left:auto; background:var(--red); color:#fff; border:none; border-radius:5px;
-    font-size:11px; padding:4px 10px; cursor:pointer; font-weight:700; }
-  .q-editor textarea, .q-editor input[type=text] { width:100%; border:1.5px solid var(--border);
-    border-radius:8px; padding:8px 12px; font-size:13px; outline:none; background:#fff; transition:.2s; }
-  .q-editor textarea:focus, .q-editor input[type=text]:focus { border-color:var(--blue2); }
-  .q-editor textarea { resize:vertical; }
-  .q-editor label.small { font-size:11px; font-weight:700; color:var(--sub); display:block; margin-top:8px; margin-bottom:4px; text-transform:uppercase; letter-spacing:.5px; }
-  .add-q-btn { background:linear-gradient(135deg,#065f46,var(--green)); color:#fff; border:none;
-    border-radius:8px; padding:8px 16px; font-size:12px; font-weight:800; cursor:pointer; margin-right:6px; transition:.15s; }
-  .add-q-btn:hover { filter:brightness(1.1); }
-  .add-opt-btn { background:var(--sky); color:#fff; border:none; border-radius:6px; padding:4px 11px;
-    font-size:11px; font-weight:700; cursor:pointer; margin-top:6px; }
-  .opts-editor { display:flex; flex-direction:column; gap:5px; margin:6px 0; }
-  .opt-row { display:flex; align-items:center; gap:6px; }
-  .opt-row span { font-size:13px; font-weight:bold; color:var(--sub); min-width:20px; }
-  .opt-row input[type=text] { flex:1; border:1.5px solid var(--border); border-radius:6px;
-    padding:4px 8px; font-size:13px; outline:none; }
-  .editor-footer { display:flex; justify-content:space-between; align-items:center;
-    margin-top:16px; border-top:1px solid var(--border); padding-top:14px; }
-  .editor-save-btn { background:linear-gradient(135deg,var(--purple),#a855f7); color:#fff; border:none;
-    font-weight:800; border-radius:10px; padding:11px 30px; cursor:pointer; font-size:14px;
-    box-shadow:0 4px 14px rgba(124,58,237,.3); transition:.2s; }
-  .editor-save-btn:hover { transform:translateY(-1px); box-shadow:0 6px 18px rgba(124,58,237,.4); }
+  /* 제어바 */
+  .controlbar { width: 95%; max-width: 1000px; margin: 0 auto 20px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  #gradeBtn { padding: 14px 30px; font-size: 15px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; background: #1a4fb4; color: #fff; }
+  #submitBtn { padding: 14px 30px; font-size: 15px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; background: #2f855a; color: #fff; }
+  #backListBtn { padding: 14px 20px; font-size: 15px; font-weight: 700; border-radius: 8px; border: 2px solid #4a5568; background: #fff; color: #4a5568; cursor: pointer; }
 
-  /* ══ 직원 대시보드 ══ */
-  .user-dashboard { width:95%; max-width:1040px; margin:0 auto 30px; }
-  .dash-header { background:linear-gradient(135deg,var(--navy),#1e3a8a); color:#fff; padding:28px 30px;
-    border-radius:16px; margin-bottom:18px; box-shadow:0 6px 24px rgba(15,28,63,.25); }
-  .dash-header h2 { margin:0 0 4px; font-size:20px; font-weight:900; }
-  .dash-header p { margin:0; font-size:13px; opacity:.75; }
-  .exam-list-table { width:100%; border-collapse:collapse; font-size:14px; }
-  .exam-list-table th { background:#f8fafc; font-weight:800; font-size:11px; color:var(--sub);
-    letter-spacing:.5px; text-transform:uppercase; padding:11px 12px; border-bottom:2px solid var(--border); text-align:center; }
-  .exam-list-table td { border-bottom:1px solid #f1f5f9; padding:14px 12px; text-align:center; }
-  .exam-list-table tr:hover td { background:#f8fafc; }
-  .start-exam-btn { padding:9px 20px; background:linear-gradient(135deg,var(--blue2),var(--purple));
-    color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer; font-size:13px;
-    box-shadow:0 3px 12px rgba(37,99,235,.3); transition:.2s; }
-  .start-exam-btn:hover { transform:translateY(-1px); box-shadow:0 5px 16px rgba(37,99,235,.4); }
+  .mobile-nav-bar { display: none; width: 100%; max-width: 1000px; margin: 0 auto 15px; justify-content: space-between; align-items: center; gap: 10px; padding: 0 10px; }
+  .mob-nav-btn { flex: 1; padding: 12px; background: #4a5568; color: #fff; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
+  .mob-nav-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+  .mob-page-indicator { font-size: 14px; font-weight: 800; color: #1a2a50; background: #fff; padding: 10px 16px; border-radius: 8px; border: 1px solid #cbd5e0; white-space: nowrap; }
 
-  /* ══ 제어바 ══ */
-  .controlbar { width:95%; max-width:1040px; margin:0 auto 20px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
-  #gradeBtn   { padding:14px 32px; font-size:14px; font-weight:800; border-radius:10px; border:none; cursor:pointer;
-    background:linear-gradient(135deg,var(--blue2),var(--sky)); color:#fff; box-shadow:0 4px 14px rgba(37,99,235,.3); transition:.2s; }
-  #gradeBtn:hover:not(:disabled) { transform:translateY(-1px); }
-  #gradeBtn:disabled { background:#cbd5e0; box-shadow:none; cursor:not-allowed; }
-  #submitBtn  { padding:14px 32px; font-size:14px; font-weight:800; border-radius:10px; border:none; cursor:pointer;
-    background:linear-gradient(135deg,var(--green),#10b981); color:#fff; box-shadow:0 4px 14px rgba(5,150,105,.3); transition:.2s; }
-  #submitBtn:disabled { background:#cbd5e0; box-shadow:none; cursor:not-allowed; }
-  #backListBtn { padding:14px 22px; font-size:14px; font-weight:700; border-radius:10px;
-    border:2px solid var(--border); background:#fff; color:var(--sub); cursor:pointer; transition:.2s; }
-  #backListBtn:hover { border-color:var(--blue2); color:var(--blue2); }
+  .scorebox { width: 95%; max-width: 1000px; margin: 0 auto 20px; text-align: center; font-size: 18px; font-weight: 800; padding: 20px; border-radius: 12px; display: none; }
+  .scorebox.pass { background: #f0fff4; color: #22543d; border: 2px solid #38a169; }
+  .scorebox.fail { background: #fff5f5; color: #742a2a; border: 2px solid #e53e3e; }
 
-  /* 모바일 내비 */
-  .mobile-nav-bar { display:none; width:100%; max-width:1040px; margin:0 auto 15px;
-    justify-content:space-between; align-items:center; gap:10px; padding:0 10px; }
-  .mob-nav-btn { flex:1; padding:12px; background:var(--navy); color:#fff; border:none;
-    border-radius:10px; font-weight:800; font-size:14px; cursor:pointer; transition:.15s; }
-  .mob-nav-btn:hover:not(:disabled) { background:var(--blue2); }
-  .mob-nav-btn:disabled { background:#cbd5e0; cursor:not-allowed; }
-  .mob-page-indicator { font-size:13px; font-weight:800; color:var(--navy); background:#fff;
-    padding:10px 18px; border-radius:10px; border:2px solid var(--border); white-space:nowrap; }
+  /* 시험지 양식 */
+  .sheet { width: 95%; max-width: 1000px; margin: 0 auto 40px; background: #fff; border: 3px solid #1a2a50; padding: 40px 45px; display: none; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+  .header-row { display: flex; align-items: flex-end; border-bottom: 4px solid #1a4fb4; padding-bottom: 12px; margin-bottom: 20px; }
+  .title { font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #1a2a50; }
+  
+  table.info { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; table-layout: fixed; }
+  table.info td { border: 2px solid #1a2a50; padding: 6px 10px; height: 34px; vertical-align: middle; }
+  table.info td.label { background: #f8fafc; font-weight: 800; width: 110px; text-align: center; color: #1a2a50; }
+  
+  .infoInput { width: 100%; border: none; font-size: 14px; padding: 2px; outline: none; background: #fffbe6; border-radius: 4px; }
+  .notice { background: #f8fafc; border-left: 5px solid #1a4fb4; padding: 14px 20px; font-size: 14px; line-height: 1.8; margin-bottom: 24px; font-weight: 700; color: #4a5568; }
+  .columns { display: flex; border-top: 2px solid #1a4fb4; padding-top: 25px; }
+  .col { flex: 1; min-width: 0; padding: 0 20px; }
+  .col:first-child { border-right: 2px solid #e2e8f0; padding-left: 0; }
+  .col:last-child { padding-right: 0; }
+  
+  .q { margin-bottom: 30px; page-break-inside: avoid; background: #fff; border-radius: 8px; }
+  .q-text { font-size: 15px; font-weight: 700; margin-bottom: 12px; line-height: 1.6; color: #111; display: flex; align-items: flex-start; gap: 8px; }
+  .q-num { background: #1a4fb4; color: #fff; font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 4px; margin-top: 2px; flex-shrink: 0; }
+  .choice-box { border: 1.5px solid #b0bddf; border-radius: 8px; background: #f4f7ff; padding: 12px 16px; font-size: 13.5px; line-height: 1.8; margin-bottom: 12px; color: #2d3748; font-weight: bold; }
+  .opt { display: flex; align-items: flex-start; gap: 8px; font-size: 14.5px; margin: 6px 0; cursor: pointer; padding: 6px 10px; border-radius: 6px; }
+  .opt:hover { background: #f1f5f9; }
+  .opt input[type=checkbox] { width: 16px; height: 16px; margin-top: 3px; accent-color: #1a4fb4; flex-shrink: 0; cursor: pointer; }
+  .opt span.num { width: 22px; color: #4a5568; font-weight: 700; flex-shrink: 0; }
+  .opt.correct-mark { background: #c6f6d5 !important; color: #22543d; font-weight: 700; }
+  .opt.wrong-mark { background: #fed7d7 !important; color: #742a2a; }
+  
+  .blankbox { border: 1.5px solid #cbd5e0; border-radius: 8px; padding: 12px 16px; font-size: 14.5px; margin-top: 8px; background: #fff; line-height: 1.8; }
+  .blankbox input[type=text], .shortanswer input[type=text] { border: none; border-bottom: 2px solid #a0aec0; font-size: 14.5px; padding: 2px 8px; outline: none; background: #fffbe6; width: 150px; }
+  .shortanswer { border: 1.5px solid #cbd5e0; border-radius: 8px; padding: 12px; background: #fff; margin-top: 8px; }
+  .shortanswer input[type=text] { width: 100%; }
+  
+  .result-icon { font-size: 12px; font-weight: 800; margin-left: 8px; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+  .result-icon.ok { color: #22543d; background: #c6f6d5; }
+  .result-icon.no { color: #742a2a; background: #fed7d7; }
+  .answer-reveal { margin-top: 8px; font-size: 13.5px; color: #1a4fb4; font-weight: 700; background: #ebf8ff; padding: 6px 12px; border-radius: 6px; display: none; }
+  .answer-reveal.show { display: block; }
+  .endmsg { text-align: center; margin-top: 25px; font-size: 15px; font-weight: 800; color: #718096; letter-spacing: 2px; }
 
-  /* 점수박스 */
-  .scorebox { width:95%; max-width:1040px; margin:0 auto 20px; text-align:center; font-size:18px;
-    font-weight:900; padding:22px; border-radius:14px; display:none; }
-  .scorebox.pass { background:linear-gradient(135deg,#f0fdf4,#dcfce7); color:#14532d; border:2px solid #86efac; }
-  .scorebox.fail { background:linear-gradient(135deg,#fff1f2,#fee2e2); color:#7f1d1d; border:2px solid #fca5a5; }
+  /* 모달 레이아웃 */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 10px; }
+  .modal-content { background: #fff; border-radius: 16px; width: 920px; max-height: 85%; overflow-y: auto; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); position: relative; }
+  .close-modal { position: absolute; top: 15px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; color: #a0aec0; }
+  .close-modal:hover { color: #2d3748; }
 
-  /* ══ 시험지 ══ */
-  .sheet { width:95%; max-width:1040px; margin:0 auto 40px; background:#fff; border:3px solid var(--navy);
-    padding:40px 45px; display:none; border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,.07); }
-  .header-row { display:flex; align-items:flex-end; border-bottom:4px solid var(--blue2); padding-bottom:12px; margin-bottom:20px; }
-  .title { font-size:24px; font-weight:900; letter-spacing:1px; color:var(--navy); }
-  table.info { width:100%; border-collapse:collapse; margin-bottom:20px; font-size:14px; table-layout:fixed; }
-  table.info td { border:2px solid var(--navy); padding:6px 10px; height:34px; vertical-align:middle; }
-  table.info td.label { background:#f8fafc; font-weight:800; width:110px; text-align:center; color:var(--navy); }
-  .infoInput { width:100%; border:none; font-size:14px; padding:2px; outline:none; background:#fffbeb; border-radius:4px; }
-  .notice { background:linear-gradient(135deg,#eff6ff,#f0fdf4); border-left:5px solid var(--blue2);
-    padding:14px 20px; font-size:14px; line-height:1.8; margin-bottom:24px; font-weight:700; color:var(--sub);
-    border-radius:0 8px 8px 0; }
-  .columns { display:flex; border-top:2px solid var(--blue2); padding-top:25px; }
-  .col { flex:1; min-width:0; padding:0 20px; }
-  .col:first-child { border-right:2px solid var(--border); padding-left:0; }
-  .col:last-child { padding-right:0; }
-  .q { margin-bottom:30px; page-break-inside:avoid; background:#fff; border-radius:8px; }
-  .q-text { font-size:15px; font-weight:700; margin-bottom:12px; line-height:1.6; color:#111;
-    display:flex; align-items:flex-start; gap:8px; }
-  .q-num { background:linear-gradient(135deg,var(--blue2),var(--purple)); color:#fff; font-size:11px;
-    font-weight:800; padding:2px 9px; border-radius:5px; margin-top:2px; flex-shrink:0; }
-  .choice-box { border:1.5px solid #bfdbfe; border-radius:10px; background:linear-gradient(135deg,#eff6ff,#f5f3ff);
-    padding:12px 16px; font-size:13.5px; line-height:1.8; margin-bottom:12px; color:var(--text); font-weight:600; }
-  .opt { display:flex; align-items:flex-start; gap:8px; font-size:14px; margin:5px 0; cursor:pointer;
-    padding:7px 10px; border-radius:8px; transition:.15s; border:1.5px solid transparent; }
-  .opt:hover { background:#f1f5f9; border-color:var(--border); }
-  .opt input[type=checkbox] { width:16px; height:16px; margin-top:3px; accent-color:var(--blue2); flex-shrink:0; cursor:pointer; }
-  .opt span.num { width:22px; color:var(--sub); font-weight:700; flex-shrink:0; }
-  .opt.correct-mark { background:#dcfce7 !important; color:#14532d; font-weight:700; border-color:#86efac !important; }
-  .opt.wrong-mark   { background:#fee2e2 !important; color:#7f1d1d; border-color:#fca5a5 !important; }
-  .blankbox { border:1.5px solid var(--border); border-radius:10px; padding:12px 16px; font-size:14.5px;
-    margin-top:8px; background:#fff; line-height:1.8; }
-  .blankbox input[type=text], .shortanswer input[type=text] { border:none; border-bottom:2px solid #94a3b8;
-    font-size:14.5px; padding:2px 8px; outline:none; background:#fffbeb; width:150px; }
-  .shortanswer { border:1.5px solid var(--border); border-radius:10px; padding:12px; background:#fff; margin-top:8px; }
-  .shortanswer input[type=text] { width:100%; }
-  .result-icon { font-size:11px; font-weight:800; margin-left:8px; padding:2px 9px; border-radius:20px; display:inline-block; }
-  .result-icon.ok { color:#14532d; background:#dcfce7; }
-  .result-icon.no { color:#7f1d1d; background:#fee2e2; }
-  .answer-reveal { margin-top:8px; font-size:13.5px; color:var(--blue2); font-weight:700;
-    background:#eff6ff; padding:7px 13px; border-radius:8px; display:none; border-left:3px solid var(--blue2); }
-  .answer-reveal.show { display:block; }
-  .endmsg { text-align:center; margin-top:25px; font-size:15px; font-weight:800; color:var(--gray); letter-spacing:2px; }
-
-  /* 모달 */
-  .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.65);
-    display:none; justify-content:center; align-items:center; z-index:1000; padding:10px; backdrop-filter:blur(3px); }
-  .modal-content { background:#fff; border-radius:20px; width:940px; max-height:88%; overflow-y:auto;
-    padding:28px; box-shadow:0 24px 60px rgba(0,0,0,.35); position:relative; }
-  .close-modal { position:absolute; top:16px; right:20px; font-size:26px; font-weight:bold;
-    cursor:pointer; color:#94a3b8; line-height:1; }
-  .close-modal:hover { color:var(--text); }
-
-  /* Firebase 상태 뱃지 */
-  .fb-status { position:fixed; bottom:16px; right:16px; font-size:11px; font-weight:700;
-    padding:6px 14px; border-radius:20px; z-index:999; transition:.3s; }
-  .fb-status.connected    { background:#dcfce7; color:#14532d; border:1px solid #86efac; }
-  .fb-status.disconnected { background:#fee2e2; color:#7f1d1d; border:1px solid #fca5a5; }
-  .fb-status.syncing      { background:#fef3c7; color:#713f12; border:1px solid #fde68a; }
-
-  @media (max-width:768px) {
-    .navbar { flex-direction:column; gap:8px; text-align:center; margin:10px auto; padding:12px; }
-    .navbar .user-info { flex-direction:column; gap:8px; }
-    .upload-zone { flex-direction:column; align-items:flex-start; padding:12px; }
-    .sheet { padding:18px 14px; border-width:2px; }
-    table.info td { padding:4px 5px; font-size:11px; height:auto; }
-    table.info td.label { width:70px; }
-    .columns { flex-direction:column; padding-top:15px; }
-    .col { padding:0 !important; border:none !important; }
-    .sheet .q { display:none; background:#f8fafc; border:1.5px solid var(--border); padding:15px; border-radius:12px; margin-bottom:14px; }
-    .sheet .q.active-mobile-q { display:block !important; }
-    .opt { font-size:13px; padding:8px; background:#fff; border:1.5px solid #f1f5f9; margin:5px 0; }
-    .input-row { max-width:100%; }
+  @media (max-width: 768px) {
+    .navbar { flex-direction: column; gap: 10px; text-align: center; margin: 10px auto; padding: 12px; }
+    .navbar .user-info { flex-direction: column; gap: 8px; }
+    .file-upload-box { flex-direction: column; align-items: flex-start; padding: 12px; }
+    .sheet { padding: 20px 15px; border-width: 2px; }
+    table.info td { padding: 4px 6px; font-size: 12px; height: auto; }
+    table.info td.label { width: 75px; }
+    .columns { flex-direction: column; padding-top: 15px; }
+    .col { padding: 0 !important; border: none !important; }
+    .sheet .q { display: none; background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+    .sheet .q.active-mobile-q { display: block !important; }
+    .opt { font-size: 13.5px; padding: 8px; background: #fff; border: 1px solid #edf2f7; margin: 6px 0; }
   }
 
   @media print {
-    body { background:#fff; padding:0; margin:0; color:#000; }
-    .navbar,.admin-panel,.controlbar,.scorebox,.user-dashboard,.logout-btn,.modal-overlay,.file-upload-box,.mobile-nav-bar,.fb-status { display:none !important; }
-    .sheet { border:none !important; margin:0 auto !important; padding:0 !important; width:700px !important; display:block !important; box-shadow:none !important; }
-    .sheet .q { display:block !important; margin-bottom:22px !important; }
+    body { background: #fff; padding: 0; margin: 0; color: #000; }
+    .navbar, .admin-panel, .controlbar, .scorebox, .user-dashboard, .logout-btn, .modal-overlay, .file-upload-box, .mobile-nav-bar { display: none !important; }
+    .sheet { border: none !important; margin: 0 auto !important; padding: 0 !important; width: 700px !important; display: block !important; box-shadow: none !important; }
+    .sheet .q { display: block !important; margin-bottom: 22px !important; }
   }
 </style>
 </head>
 <body>
 
-<!-- 로그인 -->
 <div class="login-wrapper" id="loginWrapper">
-  <div class="login-container">
-    <div class="login-logo">✈</div>
-    <h2>PUS TEST</h2>
-    <p class="login-subtitle">항공안전 역량평가 시스템</p>
+  <div class="login-container" id="loginGate">
+    <h2>PUSTEST</h2>
     <div class="form-group">
-      <label>사원명 / ID</label>
+      <label>ID</label>
       <input type="text" id="loginId" class="login-input" placeholder="이름 또는 ID 입력" onkeydown="if(event.key==='Enter')executeLogin()">
     </div>
     <div class="form-group">
-      <label>Password</label>
+      <label>PW</label>
       <input type="password" id="loginPw" class="login-input" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')executeLogin()">
     </div>
     <button class="login-btn" onclick="executeLogin()">로그인</button>
   </div>
 </div>
 
-<!-- 네비바 -->
-<div class="navbar" id="topNavbar" style="display:none;">
-  <div class="brand">✈ PUS TEST <span class="brand-badge">SMS</span></div>
+<div class="navbar" id="topNavbar" style="display: none;">
+  <div class="brand">✈ PUS TEST</div>
   <div class="user-info">
-    <span class="user-chip" id="welcomeMsg"></span>
+    <span id="welcomeMsg"></span>
     <button class="logout-btn" onclick="executeLogout()">로그아웃</button>
   </div>
 </div>
 
-<!-- 관리자 -->
-<div class="admin-panel" id="adminMainPage" style="display:none;">
-  <div class="admin-grid">
+<div class="admin-panel" id="adminMainPage" style="display: none;">
+  <div class="panel-header"><span>🛠️ 관리자 모드</span></div>
+  <div class="panel-body">
+    
+    <div class="file-upload-box">
+      <label>📂 파일 업로드:</label><input type="file" id="htmlUploader" accept=".html" onchange="importExamFromFile()">
+    </div>
 
-    <!-- 파일 업로드 -->
     <div class="sub-card">
-      <div class="card-header">
-        <div class="card-header-icon icon-sky">📂</div>
-        <h3>시험지 파일 업로드</h3>
+      <h3>👥 명단 관리</h3>
+      <div style="display:flex; gap:8px; margin-bottom:14px; max-width: 500px;">
+        <input type="text" id="newEmpName" placeholder="신규 사원 이름 입력" style="flex:1; padding:10px; border:1px solid #cbd5e0; border-radius:6px; font-size:13px;">
+        <button onclick="addEmployee()" style="background:#1a4fb4; color:#fff; border:none; border-radius:6px; padding:0 20px; font-size:13px; font-weight:700; cursor:pointer;">추가</button>
       </div>
-      <div class="card-body">
-        <div class="upload-zone">
-          <label>HTML 파일 선택:</label>
-          <input type="file" id="htmlUploader" accept=".html" onchange="importExamFromFile()">
-        </div>
+      <div style="max-height:260px; overflow-y:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr><th style="width:20%;">사원명</th><th style="width:20%;">비밀번호</th><th style="width:30%;">전송 내역</th><th style="width:30%;">지정 작업</th></tr>
+          </thead>
+          <tbody id="empTableBody"></tbody>
+        </table>
       </div>
     </div>
 
-    <!-- 명단 관리 -->
     <div class="sub-card">
-      <div class="card-header">
-        <div class="card-header-icon icon-blue">👥</div>
-        <h3>명단 관리</h3>
+      <h3>📋 시험지 저장 <small style="font-weight:normal;color:#718096;margin-left:4px;">(명칭 클릭 시 미리보기)</small></h3>
+      <div style="display:flex; gap:8px; margin-bottom:14px; max-width: 500px;">
+        <input type="text" id="newExamTitle" placeholder="신규 시험지 명칭 입력" style="flex:1; padding:10px; border:1px solid #cbd5e0; border-radius:6px; font-size:13px;">
+        <button onclick="createNewExamTemplate()" style="background:#2f855a; color:#fff; border:none; border-radius:6px; padding:0 20px; font-size:13px; font-weight:700; cursor:pointer;">저장</button>
       </div>
-      <div class="card-body">
-        <div class="input-row">
-          <input type="text" id="newEmpName" placeholder="신규 사원 이름 입력" onkeydown="if(event.key==='Enter')addEmployee()">
-          <button class="btn btn-blue" onclick="addEmployee()">추가</button>
-        </div>
-        <div style="max-height:260px;overflow-y:auto;">
-          <table class="admin-table">
-            <thead><tr><th>사원명</th><th>비밀번호</th><th>전송 내역</th><th>지정 작업</th></tr></thead>
-            <tbody id="empTableBody"></tbody>
-          </table>
-        </div>
+      <div style="max-height:240px; overflow-y:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr><th style="width:65%;">시험지 명칭</th><th style="width:15%;">문항수</th><th style="width:20%;">관리</th></tr>
+          </thead>
+          <tbody id="examTemplatesTbody"></tbody>
+        </table>
       </div>
     </div>
 
-    <!-- 시험지 저장 -->
-    <div class="sub-card">
-      <div class="card-header">
-        <div class="card-header-icon icon-green">📋</div>
-        <h3>시험지 저장 <small>(명칭 클릭 시 미리보기)</small></h3>
-      </div>
-      <div class="card-body">
-        <div class="input-row">
-          <input type="text" id="newExamTitle" placeholder="신규 시험지 명칭 입력" onkeydown="if(event.key==='Enter')createNewExamTemplate()">
-          <button class="btn btn-green" onclick="createNewExamTemplate()">저장</button>
+    <div class="sub-card" id="editorContainerCard" style="display:none; border:2px dashed #6b35a8;">
+      <h3><span id="editingTitleLabel">시험지 문항 조율</span>
+        <button onclick="closeEditor()" style="background:#4a5568; color:#fff; border:none; padding:4px 10px; border-radius:4px; font-size:12px; cursor:pointer; float:right;">편집창 닫기</button>
+      </h3>
+      <div class="q-editor-list" id="qEditorList"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; border-top:1px solid #edf2f7; padding-top:14px;">
+        <div>
+          <button class="add-q-btn" onclick="addQuestion('mc')">＋ 객관식 추가</button>
+          <button class="add-q-btn" onclick="addQuestion('text')">＋ 주관식 추가</button>
+          <button class="add-q-btn" onclick="addQuestion('blank1')">＋ 빈칸형 추가</button>
         </div>
-        <div style="max-height:240px;overflow-y:auto;">
-          <table class="admin-table">
-            <thead><tr><th style="width:65%;">시험지 명칭</th><th style="width:15%;">문항수</th><th style="width:20%;">관리</th></tr></thead>
-            <tbody id="examTemplatesTbody"></tbody>
-          </table>
-        </div>
+        <button onclick="saveActiveQuestions()" style="background:#6b35a8; color:#fff; border:none; font-weight:800; border-radius:8px; padding:10px 28px; cursor:pointer; font-size:14px;">💾 최종 변경사항 저장</button>
       </div>
     </div>
 
-    <!-- 문항 에디터 (숨김) -->
-    <div class="sub-card" id="editorContainerCard" style="display:none; border:2px dashed #a78bfa;">
-      <div class="card-header" style="background:linear-gradient(135deg,#ede9fe,#faf5ff);">
-        <div class="card-header-icon icon-purple">✏️</div>
-        <h3><span id="editingTitleLabel">시험지 문항 조율</span></h3>
-        <button onclick="closeEditor()" class="btn btn-gray btn-sm" style="margin-left:auto;">닫기</button>
-      </div>
-      <div class="card-body">
-        <div class="q-editor-list" id="qEditorList"></div>
-        <div class="editor-footer">
-          <div>
-            <button class="add-q-btn" onclick="addQuestion('mc')">＋ 객관식</button>
-            <button class="add-q-btn" onclick="addQuestion('text')">＋ 주관식</button>
-            <button class="add-q-btn" onclick="addQuestion('blank1')">＋ 빈칸형</button>
-          </div>
-          <button class="editor-save-btn" onclick="saveActiveQuestions()">💾 변경사항 저장</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 제출 결과 -->
     <div class="sub-card">
-      <div class="card-header">
-        <div class="card-header-icon icon-amber">📊</div>
-        <h3>제출 결과</h3>
-      </div>
-      <div class="card-body" style="padding-top:0;">
-        <div style="max-height:320px;overflow-y:auto;">
-          <table class="admin-table">
-            <thead><tr>
-              <th style="width:16%;">응시 사원</th>
-              <th style="width:38%;">시험지명</th>
-              <th style="width:12%;">점수</th>
-              <th style="width:10%;">판정</th>
-              <th style="width:24%;">관리</th>
-            </tr></thead>
-            <tbody id="resultsTableBody"></tbody>
-          </table>
-        </div>
+      <h3>📊 제출 결과</h3>
+      <div style="max-height:300px; overflow-y:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr><th style="width:20%;">응시 사원</th><th style="width:45%;">시험지명</th><th style="width:15%;">확인 점수</th><th style="width:10%;">판정</th><th style="width:10%;">관리</th></tr>
+          </thead>
+          <tbody id="resultsTableBody"></tbody>
+        </table>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- 직원 대시보드 -->
-<div class="user-dashboard" id="userMainPage" style="display:none;">
-  <div class="dash-header">
-    <h2>📥 시험지 목록</h2>
-    <p>배정된 평가를 확인하고 응시하세요.</p>
-  </div>
-  <div class="sub-card">
-    <div class="card-body" style="padding-top:0;">
-      <table class="exam-list-table">
-        <thead><tr><th>시험지</th><th>배점</th><th>상태</th><th>응시</th></tr></thead>
-        <tbody id="userExamListBody"></tbody>
-      </table>
-    </div>
+<div class="user-dashboard" id="userMainPage" style="display: none;">
+  <h2>📥 시험지 목록</h2>
+  <div style="overflow-x: auto;">
+    <table class="exam-list-table">
+      <thead>
+        <tr><th>시험지</th><th>배점 구조</th><th>현재 진행 상태</th><th>평가 응시</th></tr>
+      </thead>
+      <tbody id="userExamListBody"></tbody>
+    </table>
   </div>
 </div>
 
-<!-- 모바일 내비 -->
 <div class="mobile-nav-bar" id="mobileNavBar">
-  <button class="mob-nav-btn" id="mobPrevBtn" onclick="changeMobileQuestion(-1)">◀ 이전</button>
-  <div class="mob-page-indicator" id="mobIndicator">1 / 10</div>
-  <button class="mob-nav-btn" id="mobNextBtn" onclick="changeMobileQuestion(1)">다음 ▶</button>
+  <button class="mob-nav-btn" id="mobPrevBtn" onclick="changeMobileQuestion(-1)">◀ 이전 문제</button>
+  <div class="mob-page-indicator" id="mobIndicator">문항 1 / 10</div>
+  <button class="mob-nav-btn" id="mobNextBtn" onclick="changeMobileQuestion(1)">다음 문제 ▶</button>
 </div>
 
-<!-- 제어바 -->
-<div class="controlbar" id="examControlBar" style="display:none;">
-  <button id="backListBtn" onclick="abortToDashboard()">◀ 대시보드로</button>
-  <button id="gradeBtn" onclick="actionGradeExam()">✔ 채점하기</button>
-  <button id="submitBtn" onclick="actionSubmitExam()" disabled>🚀 최종 제출</button>
+<div class="controlbar" id="examControlBar" style="display: none;">
+  <button id="backListBtn" onclick="abortToDashboard()">◀ 대시보드로 돌아가기</button>
+  <button id="gradeBtn" onclick="actionGradeExam()">✔ 마크 채점하기</button>
+  <button id="submitBtn" onclick="actionSubmitExam()" disabled>🚀 답안 최종 제출하기</button>
 </div>
 
-<!-- 점수박스 -->
 <div class="scorebox" id="scorebox"></div>
 
-<!-- 시험지 -->
 <div class="sheet" id="sheet">
   <div class="header-row"><div class="title" id="sheetExamTitle">PUS TEST</div></div>
   <table class="info">
     <tr>
       <td class="label">소속 정보</td>
-      <td><input type="text" class="infoInput" id="dept" placeholder="소속 부서" oninput="saveCurrentProgress()"></td>
+      <td><input type="text" class="infoInput" id="dept" placeholder="소속 부서 기입" oninput="saveCurrentProgress()"></td>
       <td class="label">사원 번호</td>
-      <td><input type="text" class="infoInput" id="empId" placeholder="사번" oninput="saveCurrentProgress()"></td>
+      <td><input type="text" class="infoInput" id="empId" placeholder="사번 기입" oninput="saveCurrentProgress()"></td>
       <td class="label">성명 정보</td>
       <td><input type="text" class="infoInput" id="uname" readonly></td>
       <td class="label">획득 점수</td>
-      <td id="scoreCell" style="font-weight:900;font-size:18px;color:var(--blue2);text-align:center;">-</td>
+      <td id="scoreCell" style="font-weight:900; font-size:18px; color:#1a4fb4; text-align:center;">-</td>
     </tr>
   </table>
   <div class="notice">◆ 제한 시간 : 30분&emsp;&emsp;◆ 문항 안내 : 실시간 평가 문항 구조&emsp;&emsp;◆ 통과 기준 : 70점</div>
@@ -468,7 +301,6 @@
   <div class="endmsg">— 수고하셨습니다 —</div>
 </div>
 
-<!-- 미리보기 모달 -->
 <div class="modal-overlay" id="previewModal">
   <div class="modal-content">
     <span class="close-modal" onclick="closePreviewModal()">&times;</span>
@@ -476,848 +308,792 @@
   </div>
 </div>
 
-<!-- Firebase 연결 상태 -->
-<div class="fb-status disconnected" id="fbStatus">● 연결 중...</div>
-
 <script>
-// ══════════════════════════════════════════
-//  Firebase 초기화
-// ══════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyArNnqfNSL6i2agKWkl1Px4DxxIzWPppN4",
-  authDomain: "pustest-9d827.firebaseapp.com",
-  databaseURL: "https://pustest-9d827-default-rtdb.firebaseio.com",
-  projectId: "pustest-9d827",
-  storageBucket: "pustest-9d827.firebasestorage.app",
-  messagingSenderId: "914940522659",
-  appId: "1:914940522659:web:bd3e4d01ba7941a7398f16",
-  measurementId: "G-1LQV4T0WN1"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// 연결 상태 감지
-db.ref('.info/connected').on('value', snap => {
-  const el = document.getElementById('fbStatus');
-  if (snap.val()) {
-    el.textContent = '● Firebase 연결됨';
-    el.className = 'fb-status connected';
-  } else {
-    el.textContent = '● 연결 끊김';
-    el.className = 'fb-status disconnected';
-  }
-});
-
-// ══════════════════════════════════════════
-//  Firebase 헬퍼 – localStorage 완전 대체
-// ══════════════════════════════════════════
-function fbSet(path, data) {
-  return db.ref(path).set(data);
-}
-function fbGet(path) {
-  return db.ref(path).get().then(s => s.exists() ? s.val() : null);
-}
-function fbPush(path, data) {
-  return db.ref(path).push(data);
-}
-function fbRemove(path) {
-  return db.ref(path).remove();
-}
-
-// ══════════════════════════════════════════
-//  유틸
-// ══════════════════════════════════════════
+// 💡 안전한 텍스트 변환 함수 (자바스크립트 크래시 원천 차단)
 function escHtml(s){
-  if(s===null||s===undefined) return '';
+  if(s === null || s === undefined) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+
 const NUMS = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
 
-function showLoading(msg='불러오는 중...') {
-  let el = document.getElementById('loadingOverlay');
-  if(!el) {
-    el = document.createElement('div');
-    el.id = 'loadingOverlay';
-    el.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,28,63,.55);display:flex;align-items:center;justify-content:center;z-index:9999;';
-    el.innerHTML = `<div style="background:#fff;padding:28px 40px;border-radius:16px;text-align:center;font-weight:800;color:#1e293b;font-size:15px;box-shadow:0 12px 40px rgba(0,0,0,.3);">
-      <div style="font-size:28px;margin-bottom:10px;">⟳</div>${msg}</div>`;
-    document.body.appendChild(el);
-  }
-}
-function hideLoading() {
-  const el = document.getElementById('loadingOverlay');
-  if(el) el.remove();
-}
-
-// ══════════════════════════════════════════
-//  기본 마스터 데이터
-// ══════════════════════════════════════════
+// 기본 마스터 데이터
 const DEFAULT_QS = [
-  { id:1,type:'mc',text:'다음 빈칸에 들어갈 용어로 가장 적절한 것은?\n\n( ) 이란 항공안전프로그램에 따라 서비스제공자가 안전을 체계적으로 관리하는 방법으로서, 안전관리를 위하여 요구되는 조직 구조, 책임과 의무, 정책 및 절차 등을 포함한다.',opts:['항공안전프로그램','안전관리시스템 (SMS)','위험관리체계','품질보증시스템'],points:10,correct:['2'],keywords:'',display:''},
-  { id:2,type:'mc',text:'안전(Safety)의 정의와 관련이 부족한 것은?',opts:['안전하다라는 것은 위험이 없다라는 것과 동의어가 아님','인간은 실수로부터 자유로울 수 없음','통제되고 관리되는 범위에 한해서 안전함','위험이나 위해요소가 완전히 제거된 상황만을 의미'],points:10,correct:['4'],keywords:'',display:''},
-  { id:3,type:'mc',text:'안전관리시스템(SMS)의 주요 구성요소와 관련이 부족한 것은?',opts:['안전정책','안전위험관리','안전보증활동과 안전증진활동','안전성과관리'],points:10,correct:['4'],keywords:'',display:''},
-  { id:4,type:'mc',text:'위험관리의 순서도로 알맞은 것은?',opts:['위해요소 식별 – 위해요소 분석 – 위험평가 실시 – 후속조치 및 경감조치','위해요소 식별 – 위험평가 실시 – 위해요소 분석 – 후속조치 및 경감조치','위험평가 실시 – 위해요소 식별 – 위해요소 분석 – 후속조치 및 경감조치','위험평가 실시 – 위해요소 분석 – 위해요소 식별 – 후속조치 및 경감조치'],points:10,correct:['1'],keywords:'',display:''},
-  { id:5,type:'mc',text:'안전보고의 주요 내용과 관련이 부족한 것은?',opts:['보고자에 대한 비처벌을 원칙으로 한다.','안전보고의 내용은 사실을 근거로 작성한다.','전 직원은 위해요소 확인 시 신속하게 보고해야 한다.','안전보고서는 데이터로만 보관한다.'],points:10,correct:['4'],keywords:'',display:''},
-  { id:6,type:'blank1',text:'괄호 안에 올바른 용어를 작성하시오.',opts:[],blankSentence:'안전보증활동 중 품질보증 프로그램의 목적은 항공기 운영과 관련 있는 회사의 규정 및 절차가 적절하게 운영되고 있는지 체계적으로 확인하고, ( )을(를) 통해 위해요소를 식별하여 최상의 안전 수준을 보증하는데 있다.',points:10,correct:[],keywords:'지속적인개선,지속적개선,개선',display:'지속적인 개선'},
-  { id:7,type:'mc',text:'SMS의 특성으로 알맞은 것을 고르시오.',choiceBox:'가. 안전과 관련된 조직에서만의 활동을 포함\n나. 조직의 최고책임자로부터 시작\n다. 모든 레벨에서 안전을 고려해야 함\n라. 안전과 관련된 사고이후로 일시적으로 안전수준을 개선\n마. 모든 이해관계자(STAKE-HOLDERS)가 각자의 역할을 가지고 있음',opts:['나/다/마','가/나/마','가/라/마','나/라/마'],points:10,correct:['1'],keywords:'',display:''},
-  { id:8,type:'mc',text:"다음 중 '미리 수집된 계획에 따라, 조직 전체가 지속적으로 시행'하는 안전 관리의 특성으로 가장 적절한 것은?",opts:['Systematic (시스템적)','Proactive (예방적)','Explicit (명확한)','Reactive (사후대응적)'],points:10,correct:['1'],keywords:'',display:''},
-  { id:9,type:'mc',text:"다음 중 '인적 오류(Human Error)'의 정의로 가장 적절한 것은?",opts:['시스템의 노후화로 인해 발생하는 기계적 결함이나 오작동','안전성, 효율성, 성과 등을 감소시키는 인간의 결정이나 행동','예기치 못한 자연재해로 인해 경영 활동에 차질이 생기는 현상','조직의 규정을 철저히 준수하여 업무의 정확도를 높이는 행위'],points:10,correct:['2'],keywords:'',display:''},
-  { id:10,type:'blank1',text:'다음 빈칸을 채우시오.',opts:[],blankSentence:'위해요소란 인명의 피해, 시스템, 장비, 재산, 등의 손실, 또는 업무 수행 능력의 저하를 초래할 수 있는 현존하거나 ( )원인',points:10,correct:[],keywords:'잠재적인,잠재적',display:'잠재적인'}
+  { id:1, type:'mc', text:'다음 빈칸에 들어갈 용어로 가장 적절한 것은?\n\n( ) 이란 항공안전프로그램에 따라 서비스제공자가 안전을 체계적으로 관리하는 방법으로서, 안전관리를 위하여 요구되는 조직 구조, 책임과 의무, 정책 및 절차 등을 포함한다.', opts:['항공안전프로그램','안전관리시스템 (SMS)','위험관리체계','품질보증시스템'], points:10, correct:['2'], keywords:'', display:'' },
+  { id:2, type:'mc', text:'안전(Safety)의 정의와 관련이 부족한 것은?', opts:['안전하다라는 것은 위험이 없다라는 것과 동의어가 아님','인간은 실수로부터 자유로울 수 없음','통제되고 관리되는 범위에 한해서 안전함','위험이나 위해요소가 완전히 제거된 상황만을 의미'], points:10, correct:['4'], keywords:'', display:'' },
+  { id:3, type:'mc', text:'안전관리시스템(SMS)의 주요 구성요소와 관련이 부족한 것은?', opts:['안전정책','안전위험관리','안전보증활동과 안전증진활동','안전성과관리'], points:10, correct:['4'], keywords:'', display:'' },
+  { id:4, type:'mc', text:'위험관리의 순서도로 알맞은 것은?', opts:['위해요소 식별 – 위해요소 분석 – 위험평가 실시 – 후속조치 및 경감조치','위해요소 식별 – 위험평가 실시 – 위해요소 분석 – 후속조치 및 경감조치','위험평가 실시 – 위해요소 식별 – 위해요소 분석 – 후속조치 및 경감조치','위험평가 실시 – 위해요소 분석 – 위해요소 식별 – 후속조치 및 경감조치'], points:10, correct:['1'], keywords:'', display:'' },
+  { id:5, type:'mc', text:'안전보고의 주요 내용과 관련이 부족한 것은?', opts:['보고자에 대한 비처벌을 원칙으로 한다.','안전보고의 내용은 사실을 근거로 작성한다.','전 직원은 위해요소 확인 시 신속하게 보고해야 한다.','안전보고서는 데이터로만 보관한다.'], points:10, correct:['4'], keywords:'', display:'' },
+  { id:6, type:'blank1', text:'괄호 안에 올바른 용어를 작성하시오.', opts:[], blankSentence:'안전보증활동 중 품질보증 프로그램의 목적은 항공기 운영과 관련 있는 회사의 규정 및 절차가 적절하게 운영되고 있는지 체계적으로 확인하고, ( )을(를) 통해 위해요소를 식별하여 최상의 안전 수준을 보증하는데 있다.', points:10, correct:[], keywords:'지속적인개선,지속적개선,개선', display:'지속적인 개선' },
+  { id:7, type:'mc', text:'SMS의 특성으로 알맞은 것을 고르시오.', choiceBox:'가. 안전과 관련된 조직에서만의 활동을 포함\n나. 조직의 최고책임자로부터 시작\n다. 모든 레벨에서 안전을 고려해야 함\n라. 안전과 관련된 사고이후로 일시적으로 안전수준을 개선\n마. 모든 이해관계자(STAKE-HOLDERS)가 각자의 역할을 가지고 있음', opts:['나/다/마','가/나/마','가/라/마','나/라/마'], points:10, correct:['1'], keywords:'', display:'' },
+  { id:8, type:'mc', text:"다음 중 '미리 수집된 계획에 따라, 조직 전체가 지속적으로 시행'하는 안전 관리의 특성으로 가장 적절한 것은?", opts:['Systematic (시스템적)','Proactive (예방적)','Explicit (명확한)','Reactive (사후대응적)'], points:10, correct:['1'], keywords:'', display:'' },
+  { id:9, type:'mc', text:"다음 중 '인적 오류(Human Error)'의 정의로 가장 적절한 것은?", opts:['시스템의 노후화로 인해 발생하는 기계적 결함이나 오작동','안전성, 효율성, 성과 등을 감소시키는 인간의 결정이나 행동','예기치 못한 자연재해로 인해 경영 활동에 차질이 생기는 현상','조직의 규정을 철저히 준수하여 업무의 정확도를 높이는 행위'], points:10, correct:['2'], keywords:'', display:'' },
+  { id:10, type:'blank1', text:'다음 빈칸을 채우시오.', opts:[], blankSentence:'위해요소란 인명의 피해, 시스템, 장비, 재산, 등의 손실, 또는 업무 수행 능력의 저하를 초래할 수 있는 현존하거나 ( )원인', points:10, correct:[], keywords:'잠재적인,잠재적', display:'잠재적인' }
 ];
 
-// ══════════════════════════════════════════
-//  메모리 상태 (Firebase에서 로드)
-// ══════════════════════════════════════════
-let employees = [];
-let examTemplates = [];
-let assignedExams = [];
-let examResults = [];
+let employees = JSON.parse(localStorage.getItem('sms_employees') || '[{"name":"홍길동","pw":"1234"}]');
+let examTemplates = JSON.parse(localStorage.getItem('sms_exams') || '[]');
+let assignedExams = JSON.parse(localStorage.getItem('sms_assigned') || '[]');
+let examResults = JSON.parse(localStorage.getItem('sms_results') || '[]');
+
+if(examTemplates.length === 0) {
+  examTemplates.push({ id: 1001, title: '항공안전 기본소양 SMS 평가 마스터', questions: DEFAULT_QS });
+  localStorage.setItem('sms_exams', JSON.stringify(examTemplates));
+}
 
 let currentUser = JSON.parse(sessionStorage.getItem('sms_session') || 'null');
 let activeEditExamId = null;
 let activeTakeAssignId = null;
 let isGradedCompleted = false;
-let mobileActiveIdx = 0;
+
+let mobileActiveIdx = 0; 
 let totalExamQsCount = 0;
 
-// Firebase 실시간 리스너 (관리자용)
-function startAdminListeners() {
-  db.ref('employees').on('value', snap => {
-    employees = snap.val() ? Object.values(snap.val()) : [];
-    if(document.getElementById('adminMainPage').style.display !== 'none') renderAdminDash();
-  });
-  db.ref('examTemplates').on('value', snap => {
-    examTemplates = snap.val() ? Object.values(snap.val()) : [];
-    if(examTemplates.length === 0) {
-      fbSet('examTemplates/1001', { id:1001, title:'항공안전 기본소양 SMS 평가 마스터', questions: DEFAULT_QS });
-    }
-    if(document.getElementById('adminMainPage').style.display !== 'none') renderAdminDash();
-  });
-  db.ref('assignedExams').on('value', snap => {
-    assignedExams = snap.val() ? Object.values(snap.val()) : [];
-    if(document.getElementById('adminMainPage').style.display !== 'none') renderAdminDash();
-  });
-  db.ref('examResults').on('value', snap => {
-    examResults = snap.val() ? Object.values(snap.val()) : [];
-    if(document.getElementById('adminMainPage').style.display !== 'none') renderAdminDash();
-  });
-}
-
-// 직원 리스너
-function startUserListeners(username) {
-  db.ref('assignedExams').on('value', snap => {
-    assignedExams = snap.val() ? Object.values(snap.val()) : [];
-    if(document.getElementById('userMainPage').style.display !== 'none') renderUserDash();
-  });
-}
-
-// ══════════════════════════════════════════
-//  초기 로드
-// ══════════════════════════════════════════
-window.onload = async function() {
+window.onload = function() {
   if(currentUser) {
     showMainInterface();
-    if(currentUser.role === 'user') {
-      const savedActiveId = sessionStorage.getItem('sms_active_assign_id');
-      if(savedActiveId) {
-        // assignedExams 로드 후 resume
-        const snap = await db.ref('assignedExams').get();
-        assignedExams = snap.val() ? Object.values(snap.val()) : [];
-        resumeTakingExam(savedActiveId);
-      }
+    const savedActiveId = localStorage.getItem('sms_active_assign_id');
+    if (savedActiveId && currentUser.role === 'user') {
+      resumeTakingExam(savedActiveId);
     }
   } else {
     document.getElementById('loginWrapper').style.display = 'flex';
   }
 };
 
-// ══════════════════════════════════════════
-//  로그인 / 로그아웃
-// ══════════════════════════════════════════
-async function executeLogin() {
+function executeLogin() {
   const id = document.getElementById('loginId').value.trim();
   const pw = document.getElementById('loginPw').value.trim();
   if(!id || !pw) return alert('항목을 입력바랍니다.');
 
   if(id === 'PUSTEST' && pw === 'PUSTEST') {
-    currentUser = { name:'관리자', role:'admin' };
-    sessionStorage.setItem('sms_session', JSON.stringify(currentUser));
-    showMainInterface();
-    return;
-  }
-
-  showLoading('로그인 확인 중...');
-  try {
-    const snap = await db.ref('employees').get();
-    const empMap = snap.val() || {};
-    let emp = Object.values(empMap).find(e => e.name === id);
-    if(!emp) { hideLoading(); return alert('등록되지 않은 사원명입니다.'); }
-
+    currentUser = { name: '관리자', role: 'admin' };
+  } else {
+    let emp = employees.find(e => e.name === id);
+    if(!emp) return alert('등록되지 않은 사원명입니다.');
+    
     if(!emp.pw) {
       emp.pw = pw;
-      await fbSet(`employees/${emp.name}`, emp);
+      localStorage.setItem('sms_employees', JSON.stringify(employees));
       alert('비밀번호가 자동 고정 등록되었습니다.');
     } else {
-      if(emp.pw !== pw) { hideLoading(); return alert('비밀번호 불일치.'); }
+      if(emp.pw !== pw) return alert('비밀번호 불일치.');
     }
     currentUser = { name: emp.name, role: 'user' };
-    sessionStorage.setItem('sms_session', JSON.stringify(currentUser));
-    hideLoading();
-    showMainInterface();
-  } catch(e) { hideLoading(); alert('오류: ' + e.message); }
+  }
+  sessionStorage.setItem('sms_session', JSON.stringify(currentUser));
+  showMainInterface();
 }
 
 function executeLogout() {
-  sessionStorage.clear();
+  sessionStorage.removeItem('sms_session');
+  localStorage.removeItem('sms_active_assign_id');
   location.reload();
 }
 
 function showMainInterface() {
   document.getElementById('loginWrapper').style.display = 'none';
   document.getElementById('topNavbar').style.display = 'flex';
-  document.getElementById('welcomeMsg').textContent = `[${currentUser.role==='admin'?'관리자':'사원'}] ${currentUser.name}님`;
-
+  document.getElementById('welcomeMsg').textContent = `[${currentUser.role === 'admin' ? '관리자' : '사원'}] ${currentUser.name}님`;
+  
   if(currentUser.role === 'admin') {
     document.getElementById('adminMainPage').style.display = 'block';
-    startAdminListeners();
+    renderAdminDash();
   } else {
     document.getElementById('userMainPage').style.display = 'block';
-    startUserListeners(currentUser.name);
+    renderUserDash();
   }
 }
 
-// ══════════════════════════════════════════
-//  파일 업로드 (HTML → Firebase)
-// ══════════════════════════════════════════
 function importExamFromFile() {
   const fileInput = document.getElementById('htmlUploader');
-  if(!fileInput.files.length) return;
+  if (!fileInput.files.length) return;
+
   const file = fileInput.files[0];
   const reader = new FileReader();
-  reader.onload = async function(e) {
+
+  reader.onload = function(e) {
     const textContent = e.target.result;
     try {
-      if(textContent.includes('const DEFAULT_QUESTIONS =')) {
+      if (textContent.includes('const DEFAULT_QUESTIONS =')) {
         let startIdx = textContent.indexOf('const DEFAULT_QUESTIONS =');
         let endIdx = textContent.indexOf('];', startIdx);
         let arrayStr = textContent.substring(startIdx + 'const DEFAULT_QUESTIONS ='.length, endIdx + 1).trim();
         let parsedQs;
-        try { parsedQs = (new Function('return (' + arrayStr + ')'))(); }
-        catch(e2) { throw new Error('문항 배열 파싱 실패: ' + e2.message); }
-
-        if(Array.isArray(parsedQs)) {
+        try { parsedQs = (new Function('return (' + arrayStr + ')'))(); } catch(e2) { throw new Error('문항 배열 파싱 실패: ' + e2.message); }
+        
+        if (Array.isArray(parsedQs)) {
           if(textContent.includes('const DEFAULT_ANSWERS =')) {
             let aStart = textContent.indexOf('const DEFAULT_ANSWERS =');
             let aEnd = textContent.indexOf('};', aStart);
             let ansStr = textContent.substring(aStart + 'const DEFAULT_ANSWERS ='.length, aEnd + 1).trim();
             let parsedAns;
             try { parsedAns = (new Function('return (' + ansStr + ')'))(); } catch(e3) { parsedAns = {}; }
+            
             parsedQs.forEach(q => {
-              if(parsedAns[q.id]) { q.correct=parsedAns[q.id].selected||[]; q.keywords=parsedAns[q.id].keywords||''; q.display=parsedAns[q.id].display||''; }
-              if(q.type==='mc7') q.type='mc';
+              if(parsedAns[q.id]) {
+                q.correct = parsedAns[q.id].selected || [];
+                q.keywords = parsedAns[q.id].keywords || '';
+                q.display = parsedAns[q.id].display || '';
+              }
+              if(q.type === 'mc7') q.type = 'mc';
             });
           }
+
           const newId = Date.now();
-          const pureTitle = file.name.replace('.html','');
-          showLoading('Firebase에 업로드 중...');
-          await fbSet(`examTemplates/${newId}`, { id:newId, title:pureTitle, questions:parsedQs });
-          hideLoading();
+          let pureTitle = file.name.replace('.html', '');
+          examTemplates.push({ id: newId, title: pureTitle, questions: parsedQs });
+          localStorage.setItem('sms_exams', JSON.stringify(examTemplates));
           alert('마스터 저장소에 적재했습니다.');
+          renderAdminDash();
         }
       } else { alert('구조를 찾을 수 없습니다.'); }
-    } catch(err) { hideLoading(); alert('오류: ' + err.message); }
+    } catch (err) { alert('오류: ' + err.message); }
   };
   reader.readAsText(file, 'UTF-8');
 }
 
-// ══════════════════════════════════════════
-//  관리자 대시보드 렌더링
-// ══════════════════════════════════════════
+/* ═══════════ 관리자 대시보드 렌더링 ═══════════ */
 function renderAdminDash() {
-  // 명단
   const empBody = document.getElementById('empTableBody');
   empBody.innerHTML = '';
   employees.forEach(e => {
     let userAssignedList = assignedExams.filter(a => a.username === e.name);
-    let historyHtml = userAssignedList.length === 0
-      ? '<span style="color:#94a3b8;font-size:11px;">이력 없음</span>'
-      : `<span class="history-badge" title="${escHtml(userAssignedList.map(a=>`• ${a.title} (${a.status})`).join('\n'))}">${escHtml(userAssignedList[0].title)} ${userAssignedList.length>1?'외 '+(userAssignedList.length-1)+'건':''}</span>`;
+    let historyHtml = '';
+    
+    if(userAssignedList.length === 0) {
+      historyHtml = '<span style="color:#aaa; font-size:11px;">전송 이력 없음</span>';
+    } else {
+      let fullTitles = userAssignedList.map(a => `• ${a.title} (${a.status})`).join('\n');
+      historyHtml = `<span class="history-badge" title="${escHtml(fullTitles)}">${escHtml(userAssignedList[0].title)} ${userAssignedList.length > 1 ? '외 '+(userAssignedList.length-1)+'건' : ''}</span>`;
+    }
+
     let tr = document.createElement('tr');
     tr.innerHTML = `<td><b>${escHtml(e.name)}</b></td>
-      <td>${e.pw?'<span style="color:var(--green);font-size:12px;">🔒 설정완료</span>':'<span style="color:var(--gray);font-size:12px;">💡 대기중</span>'}</td>
+      <td>${e.pw ? '🔒 설정완료' : '💡 대기중'}</td>
       <td>${historyHtml}</td>
-      <td style="white-space:nowrap;">
-        <select class="emp-send-sel" data-empname="${escHtml(e.name)}" style="font-size:12px;padding:4px 6px;border:1.5px solid var(--border);border-radius:6px;max-width:160px;outline:none;">
+      <td>
+        <select class="emp-send-sel" data-empname="${escHtml(e.name)}" style="font-size:12px; padding:3px; max-width:180px;">
           ${examTemplates.map(t=>`<option value="${t.id}">${escHtml(t.title)}</option>`).join('')}
         </select>
-        <button onclick="sendExamToUser('${escHtml(e.name)}')" class="btn btn-blue btn-sm" style="margin-left:4px;">전송</button>
-        <button onclick="deleteEmployee('${escHtml(e.name)}')" class="btn btn-red btn-sm" style="margin-left:2px;">삭제</button>
+        <button onclick="sendExamToUser('${escHtml(e.name)}')" style="background:#1a4fb4; color:#fff; border:none; border-radius:4px; padding:3px 8px; font-size:11px; cursor:pointer; font-weight:bold;">전송</button>
+        <button onclick="deleteEmployee('${escHtml(e.name)}')" style="background:#e53e3e; color:#fff; border:none; border-radius:4px; padding:3px 8px; font-size:11px; cursor:pointer;">삭제</button>
       </td>`;
     empBody.appendChild(tr);
   });
 
-  // 시험지
   const examBody = document.getElementById('examTemplatesTbody');
   examBody.innerHTML = '';
   examTemplates.forEach(t => {
-    let qLen = Array.isArray(t.questions) ? t.questions.length : 0;
     let tr = document.createElement('tr');
+    let qLen = Array.isArray(t.questions) ? t.questions.length : 0;
     tr.innerHTML = `<td><span class="clickable-title" onclick="openExamPreviewModal('${t.id}')">${escHtml(t.title)}</span></td>
-      <td><span style="font-weight:800;color:var(--blue2);">${qLen}</span>개</td>
+      <td>${qLen}개</td>
       <td>
-        <button onclick="openQuestionEditor('${t.id}')" class="btn btn-purple btn-sm">수정</button>
-        <button onclick="deleteExamTemplate('${t.id}')" class="btn btn-gray btn-sm" style="margin-left:3px;">삭제</button>
+        <button onclick="openQuestionEditor('${t.id}')" style="background:#6b35a8; color:#fff; border:none; border-radius:4px; padding:3px 8px; font-size:11px; cursor:pointer; font-weight:bold;">수정</button>
+        <button onclick="deleteExamTemplate('${t.id}')" style="background:#718096; color:#fff; border:none; border-radius:4px; padding:3px 8px; font-size:11px; cursor:pointer;">삭제</button>
       </td>`;
     examBody.appendChild(tr);
   });
 
-  // 제출 결과
   const resBody = document.getElementById('resultsTableBody');
   resBody.innerHTML = '';
-  if(examResults.length === 0) {
-    resBody.innerHTML = `<tr><td colspan="5" style="color:#94a3b8;padding:20px;font-size:13px;">제출된 결과가 없습니다.</td></tr>`;
-    return;
-  }
   examResults.forEach(r => {
-    let passCheck = r.score >= 70
-      ? '<span class="badge-pass">Pass</span>'
-      : '<span class="badge-fail">Fail</span>';
     let tr = document.createElement('tr');
-    tr.innerHTML = `<td><b>${escHtml(r.username)}</b></td>
-      <td style="text-align:left;">${escHtml(r.examTitle)}</td>
-      <td><b>${r.score}점</b></td>
-      <td>${passCheck}</td>
-      <td style="white-space:nowrap;">
-        <button onclick="printUserResult('${r.id}')" class="btn btn-green btn-sm">출력</button>
-        <button onclick="deleteSubmittedResult('${r.id}')" class="btn btn-red btn-sm" style="margin-left:4px;">삭제</button>
+    let passCheck = r.score >= 70 ? '<span style="color:#2f855a;font-weight:bold;">🎉 Pass</span>' : '<span style="color:#e53e3e;font-weight:bold;">❌ Fail</span>';
+    tr.innerHTML = `<td><b>${escHtml(r.username)}</b></td><td>${escHtml(r.examTitle)}</td><td><b>${r.score}점</b></td><td>${passCheck}</td>
+      <td>
+        <button onclick="printUserResult('${r.id}')" style="background:#2f855a; color:#fff; border:none; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer;">📄 출력</button>
+        <button onclick="deleteSubmittedResult('${r.id}')" style="background:#e53e3e; color:#fff; border:none; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer;">삭제</button>
       </td>`;
     resBody.appendChild(tr);
   });
 }
 
-// ══════════════════════════════════════════
-//  미리보기 모달
-// ══════════════════════════════════════════
 function openExamPreviewModal(examId) {
   const template = examTemplates.find(t => String(t.id) === String(examId));
   if(!template || !Array.isArray(template.questions)) return;
+
   const modalSheet = document.getElementById('modalSheetContents');
   let safeQs = template.questions;
-  let totalPoints = safeQs.reduce((sum, q) => sum + (q.points||10), 0);
-  let html = `<div style="text-align:center;margin-bottom:18px;">
-    <h2 style="color:var(--navy);margin:0 0 4px;">🔍 미리보기</h2>
-    <div style="font-size:16px;font-weight:800;color:var(--blue2);margin-bottom:4px;">${escHtml(template.title)}</div>
-    <span style="font-size:12px;color:var(--gray);">총 ${safeQs.length}문항 | ${totalPoints}점 만점</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;border-top:2px solid var(--blue2);padding-top:18px;">`;
-  let leftH='', rightH='';
-  const half = Math.ceil(safeQs.length/2);
+  let totalPoints = safeQs.reduce((sum, q) => sum + (q.points || 10), 0);
+  
+  let html = `<div style="text-align:center; margin-bottom:15px;"><h2 style="color:#1a2a50; margin:0;">🔍 마스터 미리보기: ${escHtml(template.title)}</h2>
+              <span style="font-size:12px; color:#666;">총 문항수: ${safeQs.length}개 | 배점합: ${totalPoints}점</span></div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; border-top:2px solid #1a4fb4; padding-top:15px;">`;
+
+  let leftH = '', rightH = '';
+  const half = Math.ceil(safeQs.length / 2);
+
   safeQs.forEach((q, idx) => {
     try {
+      let qBlock = `<div style="margin-bottom:20px; border-bottom:1px dashed #ddd; padding-bottom:10px;">
+        <div style="font-size:13px; font-weight:bold; margin-bottom:6px;"><span style="background:#6b35a8; color:#fff; padding:1px 5px; border-radius:3px; font-size:11px; margin-right:4px;">${idx+1}</span> ${escHtml(q.text||'문제 텍스트 없음').replace(/\n/g,'<br>')} <span>(${q.points||10}점)</span></div>`;
+      
+      if (q.choiceBox) {
+        qBlock += `<div style="background:#f4f7ff; border:1px solid #b0bddf; padding:8px; font-size:12px; margin-bottom:6px; border-radius:4px;">${escHtml(q.choiceBox).replace(/\n/g,'<br>')}</div>`;
+      }
+      
       let safeOpts = Array.isArray(q.opts) ? q.opts : [];
       let safeCorrect = Array.isArray(q.correct) ? q.correct : String(q.correct||'').split(',').map(s=>s.trim());
-      let qBlock = `<div style="margin-bottom:18px;border-bottom:1px dashed #e2e8f0;padding-bottom:12px;">
-        <div style="font-size:13px;font-weight:700;margin-bottom:7px;line-height:1.5;">
-          <span style="background:linear-gradient(135deg,var(--blue2),var(--purple));color:#fff;padding:1px 7px;border-radius:4px;font-size:11px;margin-right:5px;">${idx+1}</span>
-          ${escHtml(q.text||'').replace(/\n/g,'<br>')} <span style="color:var(--gray);font-size:11px;">(${q.points||10}점)</span>
-        </div>`;
-      if(q.choiceBox) qBlock += `<div style="background:#f5f3ff;border:1px solid #ddd6fe;padding:8px 10px;font-size:12px;margin-bottom:6px;border-radius:7px;">${escHtml(q.choiceBox).replace(/\n/g,'<br>')}</div>`;
-      if((q.type==='mc'||q.type==='mc7') && safeOpts.length>0) {
-        safeOpts.forEach((o,i) => {
-          let isCor = safeCorrect.includes(String(i+1));
-          qBlock += `<div style="font-size:12px;padding:3px 7px;border-radius:5px;${isCor?'background:#dcfce7;font-weight:bold;color:#14532d;':''}">${NUMS[i%10]} ${escHtml(o)}</div>`;
+
+      if((q.type === 'mc' || q.type === 'mc7') && safeOpts.length > 0) {
+        safeOpts.forEach((o, i) => {
+          let isCorrect = safeCorrect.includes(String(i+1));
+          qBlock += `<div style="font-size:12px; padding:2px 6px; ${isCorrect?'background:#e3f5e8; font-weight:bold;':''}"> ${NUMS[i%10]} ${escHtml(o)}</div>`;
         });
       } else {
-        qBlock += `<div style="font-size:11px;color:var(--blue2);font-weight:700;background:#eff6ff;padding:5px 9px;border-radius:6px;">🔑 ${escHtml(q.display||q.keywords||'')}</div>`;
+        qBlock += `<div style="font-size:11px; color:#1a4fb4; font-weight:bold; background:#f4f7ff; padding:6px;">🔑 기준: ${escHtml(q.display || q.keywords || '')}</div>`;
       }
       qBlock += `</div>`;
-      if(idx<half) leftH+=qBlock; else rightH+=qBlock;
-    } catch(e){}
+      if(idx < half) leftH += qBlock; else rightH += qBlock;
+    } catch(e) {}
   });
+
   html += `<div>${leftH}</div><div>${rightH}</div></div>`;
   modalSheet.innerHTML = html;
   document.getElementById('previewModal').style.display = 'flex';
 }
+
 function closePreviewModal() { document.getElementById('previewModal').style.display = 'none'; }
 
-// ══════════════════════════════════════════
-//  문항 에디터
-// ══════════════════════════════════════════
 function openQuestionEditor(id) {
   activeEditExamId = id;
   const template = examTemplates.find(t => String(t.id) === String(id));
   if(!template) return;
   document.getElementById('editingTitleLabel').textContent = `[${template.title}] 문항 조율`;
   document.getElementById('editorContainerCard').style.display = 'block';
-  document.getElementById('editorContainerCard').scrollIntoView({behavior:'smooth',block:'start'});
   renderQEditorList(template.questions);
 }
+
 function closeEditor() { document.getElementById('editorContainerCard').style.display = 'none'; activeEditExamId = null; }
 
 function renderQEditorList(qs) {
   const list = document.getElementById('qEditorList');
   list.innerHTML = '';
   if(!Array.isArray(qs)) return;
+
   qs.forEach((q, idx) => {
     try {
-      let safeOpts = Array.isArray(q.opts) ? q.opts : [];
-      let safeCorrect = Array.isArray(q.correct) ? q.correct.join(',') : String(q.correct||'');
+      let div = document.createElement('div');
+      div.className = 'q-editor';
       let extra = '';
-      if((q.type==='mc'||q.type==='mc7') && safeOpts.length>0) {
-        if(q.choiceBox!==undefined) {
-          extra += `<label class="small">보기 박스 내용</label>
-            <textarea rows="3" oninput="updateMasterChoiceBox(${idx},this.value)">${escHtml(q.choiceBox)}</textarea>`;
+      
+      let safeOpts = Array.isArray(q.opts) ? q.opts : [];
+      let safeCorrect = Array.isArray(q.correct) ? q.correct.join(',') : String(q.correct || '');
+
+      if ((q.type === 'mc' || q.type === 'mc7') && safeOpts.length > 0) {
+        extra = ``;
+        if (q.choiceBox !== undefined) {
+          extra += `<label class="small">보기 박스 내용 (줄바꿈 구분)</label>
+                    <textarea rows="3" oninput="updateMasterChoiceBox(${idx}, this.value)">${escHtml(q.choiceBox)}</textarea>`;
         }
         extra += `<label class="small">선택지 목록</label>
           <div class="opts-editor">
-            ${safeOpts.map((o,i)=>`<div class="opt-row"><span>${NUMS[i%10]}</span><input type="text" value="${escHtml(o)}" oninput="updateMasterOpt(${idx},${i},this.value)"><button onclick="deleteMasterOpt(${idx},${i})" style="color:var(--red);border:none;background:none;cursor:pointer;font-size:15px;">✕</button></div>`).join('')}
+            ${safeOpts.map((o,i)=>`<div class="opt-row"><span>${NUMS[i%10]}</span><input type="text" value="${escHtml(o)}" oninput="updateMasterOpt(${idx}, ${i}, this.value)"><button onclick="deleteMasterOpt(${idx},${i})" style="color:red;border:none;background:none;cursor:pointer;">✕</button></div>`).join('')}
           </div>
           <button class="add-opt-btn" onclick="addMasterOpt(${idx})">＋ 보기 추가</button>
-          <div style="margin-top:8px;font-size:12px;font-weight:700;color:var(--sub);">정답번호: <input type="text" value="${escHtml(safeCorrect)}" oninput="updateMasterCorrect(${idx},this.value)" style="width:45px;text-align:center;border:1.5px solid var(--border);border-radius:5px;padding:2px 6px;"></div>`;
-      } else if(q.type==='blank1') {
-        extra = `<label class="small">빈칸 문장 (( ) 포함)</label>
-          <input type="text" value="${escHtml(q.blankSentence||'')}" oninput="updateMasterBlankSentence(${idx},this.value)">
-          <label class="small">정답 키워드 (쉼표 구분)</label>
-          <input type="text" value="${escHtml(q.keywords||'')}" oninput="updateMasterKeywords(${idx},this.value)">`;
+          <div style="margin-top:6px;">정답번호: <input type="text" value="${escHtml(safeCorrect)}" oninput="updateMasterCorrect(${idx}, this.value)" style="width:40px; text-align:center;"></div>`;
+      } else if (q.type === 'blank1') {
+        extra = `<label class="small">빈칸 문장 구성 (( ) 포함)</label>
+                 <input type="text" value="${escHtml(q.blankSentence || '')}" oninput="updateMasterBlankSentence(${idx}, this.value)">
+                 <label class="small">정답 키워드 (쉼표 구분)</label>
+                 <input type="text" value="${escHtml(q.keywords || '')}" oninput="updateMasterKeywords(${idx}, this.value)">`;
       } else {
         extra = `<label class="small">정답 키워드 (쉼표 구분)</label>
-          <input type="text" value="${escHtml(q.keywords||'')}" oninput="updateMasterKeywords(${idx},this.value)">`;
+                 <input type="text" value="${escHtml(q.keywords || '')}" oninput="updateMasterKeywords(${idx}, this.value)">`;
       }
-      let div = document.createElement('div');
-      div.className = 'q-editor';
+
       div.innerHTML = `<div class="q-editor-header">
-        <span class="q-editor-num">${idx+1}번</span>
-        <span style="font-size:11px;color:var(--sub);margin-left:8px;">배점</span>
-        <input type="number" value="${q.points||10}" oninput="updateMasterPoints(${idx},this.value)" style="width:52px;text-align:center;border:1.5px solid var(--border);border-radius:6px;padding:3px 5px;font-size:13px;">
-        <button class="del-q-btn" onclick="deleteMasterQuestion(${idx})">삭제</button>
-      </div>
-      <label class="small">문제 내용</label>
-      <textarea rows="2" oninput="updateMasterText(${idx},this.value)">${escHtml(q.text||'')}</textarea>${extra}`;
+          <span class="q-editor-num">${idx+1}번</span>
+          <span style="font-size:11px;margin-left:10px;">배점:</span><input type="number" value="${q.points||10}" oninput="updateMasterPoints(${idx}, this.value)" style="width:50px; text-align:center;">
+          <button class="del-q-btn" onclick="deleteMasterQuestion(${idx})">삭제</button>
+        </div>
+        <textarea rows="2" oninput="updateMasterText(${idx}, this.value)">${escHtml(q.text||'')}</textarea>${extra}`;
       list.appendChild(div);
     } catch(e){}
   });
 }
 
-function updateMasterText(i,v){examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[i].text=v;}
-function updateMasterPoints(i,v){examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[i].points=parseInt(v)||10;}
-function updateMasterOpt(i,j,v){examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[i].opts[j]=v;}
-function updateMasterChoiceBox(i,v){examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[i].choiceBox=v;}
-function updateMasterBlankSentence(i,v){examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[i].blankSentence=v;}
-function updateMasterCorrect(i,v){examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[i].correct=v.split(',').map(s=>s.trim());}
-function updateMasterKeywords(i,v){examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[i].keywords=v;}
-function addMasterOpt(i){const t=examTemplates.find(t=>String(t.id)===String(activeEditExamId));if(!Array.isArray(t.questions[i].opts))t.questions[i].opts=[];t.questions[i].opts.push('선택지');renderQEditorList(t.questions);}
-function deleteMasterOpt(i,j){const t=examTemplates.find(t=>String(t.id)===String(activeEditExamId));t.questions[i].opts.splice(j,1);renderQEditorList(t.questions);}
-function deleteMasterQuestion(i){const t=examTemplates.find(t=>String(t.id)===String(activeEditExamId));t.questions.splice(i,1);renderQEditorList(t.questions);}
-function addQuestion(type){
-  let exam=examTemplates.find(t=>String(t.id)===String(activeEditExamId));
-  let newQ={id:Date.now(),type,text:'문제 내용',opts:['선택1','선택2'],points:10,correct:['1'],keywords:'',display:''};
-  if(type==='blank1') newQ.blankSentence='문장 빈칸 ( ) 채우기';
-  if(!Array.isArray(exam.questions)) exam.questions=[];
+function updateMasterText(qIdx, val) { examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[qIdx].text = val; }
+function updateMasterPoints(qIdx, val) { examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[qIdx].points = parseInt(val) || 10; }
+function updateMasterOpt(qIdx, oIdx, val) { examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[qIdx].opts[oIdx] = val; }
+function updateMasterChoiceBox(qIdx, val) { examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[qIdx].choiceBox = val; }
+function updateMasterBlankSentence(qIdx, val) { examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[qIdx].blankSentence = val; }
+function updateMasterCorrect(qIdx, val) { examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[qIdx].correct = val.split(',').map(s=>s.trim()); }
+function updateMasterKeywords(qIdx, val) { examTemplates.find(t=>String(t.id)===String(activeEditExamId)).questions[qIdx].keywords = val; }
+
+function addMasterOpt(qIdx) { 
+  const t = examTemplates.find(t=>String(t.id)===String(activeEditExamId));
+  if(!Array.isArray(t.questions[qIdx].opts)) t.questions[qIdx].opts = [];
+  t.questions[qIdx].opts.push('선택지'); 
+  renderQEditorList(t.questions); 
+}
+function deleteMasterOpt(qIdx, oIdx) { 
+  const t = examTemplates.find(t=>String(t.id)===String(activeEditExamId));
+  t.questions[qIdx].opts.splice(oIdx,1); 
+  renderQEditorList(t.questions); 
+}
+function deleteMasterQuestion(qIdx) { 
+  const t = examTemplates.find(t=>String(t.id)===String(activeEditExamId));
+  t.questions.splice(qIdx,1); 
+  renderQEditorList(t.questions); 
+}
+function addQuestion(type) {
+  let exam = examTemplates.find(t => String(t.id) === String(activeEditExamId));
+  let newQ = { id: Date.now(), type: type, text: '문제 내용', opts: ['선택1','선택2'], points: 10, correct: ['1'], keywords: '', display: '' };
+  if(type==='blank1') newQ.blankSentence = '문장 빈칸 ( ) 채우기';
   exam.questions.push(newQ);
   renderQEditorList(exam.questions);
 }
-async function saveActiveQuestions() {
-  const t = examTemplates.find(t=>String(t.id)===String(activeEditExamId));
-  if(!t) return;
-  showLoading('Firebase에 저장 중...');
-  try {
-    await fbSet(`examTemplates/${t.id}`, t);
-    hideLoading();
-    alert('저장되었습니다.');
-    closeEditor();
-  } catch(e) { hideLoading(); alert('오류: '+e.message); }
+
+function saveActiveQuestions() { 
+  localStorage.setItem('sms_exams', JSON.stringify(examTemplates)); 
+  alert('저장되었습니다.'); 
+  renderAdminDash(); 
+  closeEditor(); 
 }
 
-// ══════════════════════════════════════════
-//  사원 관리
-// ══════════════════════════════════════════
-async function addEmployee() {
-  const name = document.getElementById('newEmpName').value.trim().replace(/['"]/g,'');
+function addEmployee() {
+  const name = document.getElementById('newEmpName').value.trim().replace(/['"]/g, '');
   if(!name) return;
-  if(employees.some(e=>e.name===name)) return alert('이미 존재합니다.');
-  showLoading('추가 중...');
-  try {
-    await fbSet(`employees/${name}`, {name, pw:''});
-    hideLoading();
-    document.getElementById('newEmpName').value='';
-  } catch(e) { hideLoading(); alert('오류: '+e.message); }
+  if(employees.some(e => e.name === name)) return alert('이미 존재합니다.');
+  employees.push({ name: name, pw: '' });
+  localStorage.setItem('sms_employees', JSON.stringify(employees));
+  document.getElementById('newEmpName').value = '';
+  renderAdminDash();
 }
-async function deleteEmployee(name) {
-  if(!confirm('사원을 삭제하시겠습니까?')) return;
-  showLoading('삭제 중...');
-  try { await fbRemove(`employees/${name}`); hideLoading(); }
-  catch(e) { hideLoading(); alert('오류: '+e.message); }
+
+function deleteEmployee(name) {
+  if(!confirm(`사원을 삭제하시겠습니까?`)) return;
+  employees = employees.filter(e => e.name !== name);
+  localStorage.setItem('sms_employees', JSON.stringify(employees));
+  renderAdminDash();
 }
-async function createNewExamTemplate() {
+
+function createNewExamTemplate() {
   const title = document.getElementById('newExamTitle').value.trim();
   if(!title) return;
   const newId = Date.now();
-  showLoading('생성 중...');
-  try {
-    await fbSet(`examTemplates/${newId}`, {id:newId, title, questions:[]});
-    hideLoading();
-    document.getElementById('newExamTitle').value='';
-    openQuestionEditor(newId);
-  } catch(e) { hideLoading(); alert('오류: '+e.message); }
+  examTemplates.push({ id: newId, title: title, questions: [] });
+  localStorage.setItem('sms_exams', JSON.stringify(examTemplates));
+  document.getElementById('newExamTitle').value = '';
+  renderAdminDash();
+  openQuestionEditor(newId);
 }
-async function deleteExamTemplate(id) {
+
+function deleteExamTemplate(id) {
   if(!confirm('삭제하시겠습니까?')) return;
-  showLoading('삭제 중...');
-  try { await fbRemove(`examTemplates/${id}`); hideLoading(); }
-  catch(e) { hideLoading(); alert('오류: '+e.message); }
+  examTemplates = examTemplates.filter(t => String(t.id) !== String(id));
+  localStorage.setItem('sms_exams', JSON.stringify(examTemplates));
+  renderAdminDash();
 }
-async function sendExamToUser(username) {
+
+function sendExamToUser(username) {
   const selectEl = document.querySelector(`.emp-send-sel[data-empname="${username}"]`);
   if(!selectEl) return;
   const examId = selectEl.value;
-  const template = examTemplates.find(t=>String(t.id)===String(examId));
+  const template = examTemplates.find(t => String(t.id) === String(examId));
   if(!template) return;
-  const asgId = 'asg_'+Date.now();
-  const asgData = {id:asgId, username, examTemplateId:template.id, title:template.title, questions:JSON.parse(JSON.stringify(template.questions)), status:'미응시'};
-  showLoading('전송 중...');
-  try {
-    await fbSet(`assignedExams/${asgId}`, asgData);
-    hideLoading();
-    alert('배포 전송했습니다.');
-  } catch(e) { hideLoading(); alert('오류: '+e.message); }
-}
-async function deleteSubmittedResult(resultId) {
-  if(!confirm('결과를 영구 파기합니까?')) return;
-  showLoading('삭제 중...');
-  try { await fbRemove(`examResults/${resultId}`); hideLoading(); }
-  catch(e) { hideLoading(); alert('오류: '+e.message); }
+  
+  assignedExams.push({ id: 'asg_' + Date.now(), username: username, examTemplateId: template.id, title: template.title, questions: JSON.parse(JSON.stringify(template.questions)), status: '미응시' });
+  localStorage.setItem('sms_assigned', JSON.stringify(assignedExams));
+  alert(`배포 전송했습니다.`);
+  renderAdminDash(); 
 }
 
-// ══════════════════════════════════════════
-//  직원 대시보드
-// ══════════════════════════════════════════
+function deleteSubmittedResult(resultId) {
+  if(!confirm('결과를 영구 파기합니까?')) return;
+  examResults = examResults.filter(r => String(r.id) !== String(resultId));
+  localStorage.setItem('sms_results', JSON.stringify(examResults));
+  renderAdminDash();
+}
+
+/* ═══════════ 직원 대시보드 ═══════════ */
 function renderUserDash() {
-  const body = document.getElementById('userExamListBody');
-  body.innerHTML = '';
-  let myExams = assignedExams.filter(a=>a.username===currentUser.name);
-  if(myExams.length===0) {
-    body.innerHTML=`<tr><td colspan="4" style="color:#94a3b8;padding:24px;font-size:13px;">할당된 평가가 없습니다.</td></tr>`;
-    return;
+  const body = document.getElementById('userExamListBody'); body.innerHTML = '';
+  let myExams = assignedExams.filter(a => a.username === currentUser.name);
+  if(myExams.length === 0) {
+    body.innerHTML = `<tr><td colspan="4" style="color:#777; padding:20px;">할당된 평가가 존재하지 않습니다.</td></tr>`; return;
   }
   myExams.forEach(e => {
-    let btnState = e.status==='제출완료'
-      ? `<span style="color:var(--green);font-weight:800;">✅ 제출 완료</span>`
-      : `<button class="start-exam-btn" onclick="startTakingExam('${e.id}')">응시하기</button>`;
-    let delBtn = `<button onclick="deleteUserAssignedLink('${e.id}')" class="btn-outline-red" style="margin-left:8px;">✕ 삭제</button>`;
-    let totalPoints = (e.questions||[]).reduce((sum,q)=>sum+(q.points||10),0);
     let tr = document.createElement('tr');
-    tr.innerHTML=`<td style="text-align:left;"><b>${escHtml(e.title)}</b></td><td>${totalPoints}점 만점</td><td>${e.status}</td><td>${btnState}${delBtn}</td>`;
+    let btnState = e.status === '제출완료' ? `<span style="color:#2f855a;font-weight:bold;">✅ 제출 완료</span>` : `<button class="start-exam-btn" onclick="startTakingExam('${e.id}')">응시하기</button>`;
+    let deleteActionBtn = `<button onclick="deleteUserAssignedLink('${e.id}')" style="background:#edf2f7; color:#e53e3e; border:1px solid #fed7d7; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer; margin-left:10px; font-weight:bold;">✕ 삭제</button>`;
+    let totalPoints = (e.questions||[]).reduce((sum, q) => sum + (q.points || 10), 0);
+    tr.innerHTML = `<td><b>${escHtml(e.title)}</b></td><td>${totalPoints}점 만점</td><td>${e.status}</td><td>${btnState} ${deleteActionBtn}</td>`;
     body.appendChild(tr);
   });
 }
-async function deleteUserAssignedLink(assignId) {
+
+function deleteUserAssignedLink(assignId) {
   if(!confirm('목록에서 삭제하시겠습니까?')) return;
-  showLoading('삭제 중...');
-  try { await fbRemove(`assignedExams/${assignId}`); hideLoading(); }
-  catch(e) { hideLoading(); alert('오류: '+e.message); }
+  assignedExams = assignedExams.filter(a => a.id !== assignId);
+  localStorage.setItem('sms_assigned', JSON.stringify(assignedExams));
+  renderUserDash();
 }
 
-// ══════════════════════════════════════════
-//  시험 응시
-// ══════════════════════════════════════════
 function startTakingExam(assignId) {
-  activeTakeAssignId = assignId;
-  const target = assignedExams.find(a=>a.id===assignId);
-  sessionStorage.setItem('sms_active_assign_id', assignId);
-  document.getElementById('userMainPage').style.display='none';
-  document.getElementById('examControlBar').style.display='flex';
-  document.getElementById('sheet').style.display='block';
-  document.getElementById('sheetExamTitle').textContent=target.title;
-  document.getElementById('uname').value=currentUser.name;
-  document.getElementById('dept').value='';
-  document.getElementById('empId').value='';
-  document.getElementById('scoreCell').textContent='-';
-  document.getElementById('scorebox').style.display='none';
+  activeTakeAssignId = assignId; const target = assignedExams.find(a => a.id === assignId);
+  localStorage.setItem('sms_active_assign_id', assignId); 
+  
+  document.getElementById('userMainPage').style.display = 'none';
+  document.getElementById('examControlBar').style.display = 'flex';
+  document.getElementById('sheet').style.display = 'block';
+  
+  document.getElementById('sheetExamTitle').textContent = target.title;
+  document.getElementById('uname').value = currentUser.name;
+  document.getElementById('dept').value = ''; document.getElementById('empId').value = '';
+  document.getElementById('scoreCell').textContent = '-'; document.getElementById('scorebox').style.display = 'none';
+  
   document.getElementById('sheet').classList.remove('graded');
-  document.getElementById('dept').readOnly=false;
-  document.getElementById('empId').readOnly=false;
-  isGradedCompleted=false;
-  document.getElementById('submitBtn').disabled=true;
-  document.getElementById('gradeBtn').disabled=false;
-  totalExamQsCount=(target.questions||[]).length;
-  mobileActiveIdx=0;
+  document.getElementById('dept').readOnly = false; document.getElementById('empId').readOnly = false;
+  
+  isGradedCompleted = false; document.getElementById('submitBtn').disabled = true; document.getElementById('gradeBtn').disabled = false;
+  
+  totalExamQsCount = (target.questions||[]).length;
+  mobileActiveIdx = 0; 
+  
   renderExamSheetBody(target.questions||[]);
-  restoreSavedProgress();
+  restoreSavedProgress(); 
   checkMobileGradeReadyButton();
   updateMobileQuestionVisibility();
 }
 
 function resumeTakingExam(assignId) {
-  activeTakeAssignId=assignId;
-  const target=assignedExams.find(a=>a.id===assignId);
+  activeTakeAssignId = assignId; const target = assignedExams.find(a => a.id === assignId);
   if(!target) return;
-  document.getElementById('userMainPage').style.display='none';
-  document.getElementById('examControlBar').style.display='flex';
-  document.getElementById('sheet').style.display='block';
-  document.getElementById('sheetExamTitle').textContent=target.title;
-  document.getElementById('uname').value=currentUser.name;
-  document.getElementById('dept').value='';
-  document.getElementById('empId').value='';
-  document.getElementById('scoreCell').textContent='-';
-  document.getElementById('scorebox').style.display='none';
+  document.getElementById('userMainPage').style.display = 'none';
+  document.getElementById('examControlBar').style.display = 'flex';
+  document.getElementById('sheet').style.display = 'block';
+  document.getElementById('sheetExamTitle').textContent = target.title;
+  document.getElementById('uname').value = currentUser.name;
+  document.getElementById('dept').value = '';
+  document.getElementById('empId').value = '';
+  document.getElementById('scoreCell').textContent = '-';
+  document.getElementById('scorebox').style.display = 'none';
   document.getElementById('sheet').classList.remove('graded');
-  document.getElementById('dept').readOnly=false;
-  document.getElementById('empId').readOnly=false;
-  isGradedCompleted=false;
-  document.getElementById('submitBtn').disabled=true;
-  document.getElementById('gradeBtn').disabled=false;
-  totalExamQsCount=(target.questions||[]).length;
-  mobileActiveIdx=0;
+  document.getElementById('dept').readOnly = false;
+  document.getElementById('empId').readOnly = false;
+  isGradedCompleted = false;
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('gradeBtn').disabled = false;
+  totalExamQsCount = (target.questions||[]).length;
+  mobileActiveIdx = 0; 
   renderExamSheetBody(target.questions||[]);
   restoreSavedProgress();
   checkMobileGradeReadyButton();
   updateMobileQuestionVisibility();
 }
 
+/* 💡 에러 완전 복구: 짤림을 유발하던 빈칸 처리부를 DOM 방식으로 100% 안전하게 주입 */
 function renderExamSheetBody(qs) {
-  const left=document.getElementById('colLeft');
-  const right=document.getElementById('colRight');
-  left.innerHTML=''; right.innerHTML='';
-  const half=Math.ceil(qs.length/2);
+  const left = document.getElementById('colLeft'); const right = document.getElementById('colRight');
+  left.innerHTML = ''; right.innerHTML = ''; 
+  const half = Math.ceil(qs.length / 2);
+  
   qs.forEach((q, idx) => {
     try {
-      const col = idx<half ? left : right;
-      let div=document.createElement('div');
-      div.className='q'; div.dataset.qidx=idx; div.dataset.qid=q.id;
-      let textHtml=`<div class="q-text"><span class="q-num">${idx+1}</span>${escHtml(q.text||'').replace(/\n/g,'<br>')}</div>`;
-      if(q.choiceBox) textHtml+=`<div class="choice-box">${escHtml(q.choiceBox).replace(/\n/g,'<br>')}</div>`;
-      div.innerHTML=textHtml;
-      let safeOpts=Array.isArray(q.opts)?q.opts:[];
-      if((q.type==='mc'||q.type==='mc7')&&safeOpts.length>0) {
-        safeOpts.forEach((o,i)=>{
-          let lbl=document.createElement('label'); lbl.className='opt';
-          lbl.innerHTML=`<input type="checkbox" name="ans-${idx}" value="${i+1}"><span class="num">${NUMS[i%10]}</span>${escHtml(o)}`;
+      const col = idx < half ? left : right;
+      let div = document.createElement('div'); div.className = 'q'; div.dataset.qidx = idx; div.dataset.qid = q.id;
+      
+      let textHtml = `<div class="q-text"><span class="q-num">${idx+1}</span>${escHtml(q.text||'문제 내용 없음').replace(/\n/g,'<br>')}</div>`;
+      if (q.choiceBox) {
+        textHtml += `<div class="choice-box">${escHtml(q.choiceBox).replace(/\n/g,'<br>')}</div>`;
+      }
+      div.innerHTML = textHtml;
+      
+      let safeOpts = Array.isArray(q.opts) ? q.opts : [];
+
+      // 💡 사용자 데이터 오류 방어 (만약 MC인데 보기가 아예 없는 데이터라면 강제로 텍스트 창으로 띄워서 먹통을 방지함)
+      if ((q.type === 'mc' || q.type === 'mc7') && safeOpts.length > 0) {
+        safeOpts.forEach((o, i) => { 
+          let lbl = document.createElement('label'); lbl.className = 'opt';
+          lbl.innerHTML = `<input type="checkbox" name="ans-${idx}" value="${i+1}"><span class="num">${NUMS[i%10]}</span>${escHtml(o)}`;
           lbl.querySelector('input').addEventListener('change', saveCurrentProgress);
           div.appendChild(lbl);
         });
-      } else if(q.type==='blank1'||(q.blankSentence&&q.blankSentence.trim()!=='')) {
-        let formDiv=document.createElement('div'); formDiv.className='blankbox';
-        let orig=(q.blankSentence||q.text||'');
-        if(!orig.includes('(')&&!orig.includes(')')) orig+=' ( )';
-        let safe=escHtml(orig).replace(/\n/g,'<br>');
-        formDiv.innerHTML=safe.replace(/\(\s*\)/g,`(<input type="text" id="ans-${idx}" placeholder="입력">)`);
-        let inp=formDiv.querySelector('input');
-        if(inp) inp.addEventListener('input', saveCurrentProgress);
+      } else if (q.type === 'blank1' || (q.blankSentence && q.blankSentence.trim() !== '')) {
+        let formDiv = document.createElement('div'); formDiv.className = 'blankbox';
+        let originSentence = (q.blankSentence || q.text || '');
+        if(!originSentence.includes('(') && !originSentence.includes(')')) { originSentence += ' ( )'; }
+        
+        let safeSentence = escHtml(originSentence).replace(/\n/g, '<br>');
+        let finalSentenceHtml = safeSentence.replace(/\(\s*\)/g, `(<input type="text" id="ans-${idx}" placeholder="입력">)`);
+        formDiv.innerHTML = finalSentenceHtml;
+        
+        let inp = formDiv.querySelector('input');
+        if(inp) { inp.addEventListener('input', saveCurrentProgress); }
         div.appendChild(formDiv);
       } else {
-        let formDiv=document.createElement('div'); formDiv.className='shortanswer';
-        formDiv.innerHTML=`<input type="text" id="ans-${idx}" placeholder="답안 입력">`;
+        // 주관식 및 에러로 보기가 없는 모든 문제는 텍스트 입력창으로 출력
+        let formDiv = document.createElement('div'); formDiv.className = 'shortanswer';
+        formDiv.innerHTML = `<input type="text" id="ans-${idx}" placeholder="답안 입력">`;
         formDiv.querySelector('input').addEventListener('input', saveCurrentProgress);
         div.appendChild(formDiv);
       }
-      let revealDiv=document.createElement('div'); revealDiv.className='answer-reveal'; revealDiv.id=`reveal-${idx}`;
+      
+      let revealDiv = document.createElement('div'); revealDiv.className = 'answer-reveal'; revealDiv.id = `reveal-${idx}`;
       div.appendChild(revealDiv);
       col.appendChild(div);
-    } catch(e){ console.error(e); }
-  });
-}
-
-function saveCurrentProgress() {
-  if(isGradedCompleted||!activeTakeAssignId) return;
-  const data={dept:document.getElementById('dept').value, empId:document.getElementById('empId').value, answers:{}};
-  document.querySelectorAll('.sheet .q').forEach(qEl=>{
-    const idx=qEl.dataset.qidx;
-    const cbs=qEl.querySelectorAll('input[type=checkbox]');
-    if(cbs.length>0) data.answers[idx]=[...qEl.querySelectorAll('input[type=checkbox]:checked')].map(c=>c.value);
-    else data.answers[idx]=qEl.querySelector('input[type=text]')?.value||'';
-  });
-  sessionStorage.setItem('sms_progress_'+activeTakeAssignId, JSON.stringify(data));
-  checkMobileGradeReadyButton();
-}
-
-function restoreSavedProgress() {
-  if(!activeTakeAssignId) return;
-  const str=sessionStorage.getItem('sms_progress_'+activeTakeAssignId);
-  if(!str) return;
-  const data=JSON.parse(str);
-  document.getElementById('dept').value=data.dept||'';
-  document.getElementById('empId').value=data.empId||'';
-  document.querySelectorAll('.sheet .q').forEach(qEl=>{
-    const idx=qEl.dataset.qidx;
-    const saved=data.answers[idx];
-    if(saved!==undefined) {
-      const cbs=qEl.querySelectorAll('input[type=checkbox]');
-      if(cbs.length>0&&Array.isArray(saved)) saved.forEach(v=>{const cb=qEl.querySelector(`input[type=checkbox][value="${v}"]`);if(cb)cb.checked=true;});
-      else { const txt=qEl.querySelector('input[type=text]'); if(txt) txt.value=saved; }
+    } catch(e) {
+      console.error(e);
     }
   });
 }
 
-function checkMobileGradeReadyButton() {
-  const dept=document.getElementById('dept').value.trim();
-  const empId=document.getElementById('empId').value.trim();
-  if(!dept||!empId) { document.getElementById('gradeBtn').disabled=true; return; }
-  let allAnswered=true;
-  document.querySelectorAll('.sheet .q').forEach(qEl=>{
-    const cbs=qEl.querySelectorAll('input[type=checkbox]');
-    if(cbs.length>0) { if(!qEl.querySelector('input[type=checkbox]:checked')) allAnswered=false; }
-    else { if(!(qEl.querySelector('input[type=text]')?.value.trim())) allAnswered=false; }
+function saveCurrentProgress() {
+  if (isGradedCompleted || !activeTakeAssignId) return;
+  const progressData = {
+    dept: document.getElementById('dept').value,
+    empId: document.getElementById('empId').value,
+    answers: {}
+  };
+  
+  document.querySelectorAll('.sheet .q').forEach((qEl) => {
+    const idx = qEl.dataset.qidx;
+    const checkboxes = qEl.querySelectorAll('input[type=checkbox]');
+    if (checkboxes.length > 0) {
+      const checkedVals = [...qEl.querySelectorAll('input[type=checkbox]:checked')].map(c => c.value);
+      progressData.answers[idx] = checkedVals;
+    } else {
+      const textVal = qEl.querySelector('input[type=text]')?.value || '';
+      progressData.answers[idx] = textVal;
+    }
   });
-  document.getElementById('gradeBtn').disabled=!allAnswered;
+  
+  localStorage.setItem('sms_progress_' + activeTakeAssignId, JSON.stringify(progressData));
+  checkMobileGradeReadyButton();
+}
+
+function restoreSavedProgress() {
+  if (!activeTakeAssignId) return;
+  const savedDataStr = localStorage.getItem('sms_progress_' + activeTakeAssignId);
+  if (!savedDataStr) return;
+  
+  const progressData = JSON.parse(savedDataStr);
+  document.getElementById('dept').value = progressData.dept || '';
+  document.getElementById('empId').value = progressData.empId || '';
+  
+  document.querySelectorAll('.sheet .q').forEach((qEl) => {
+    const idx = qEl.dataset.qidx;
+    const savedAns = progressData.answers[idx];
+    if (savedAns !== undefined) {
+      const checkboxes = qEl.querySelectorAll('input[type=checkbox]');
+      if (checkboxes.length > 0 && Array.isArray(savedAns)) {
+        savedAns.forEach(val => {
+          const cb = qEl.querySelector(`input[type=checkbox][value="${val}"]`);
+          if(cb) cb.checked = true;
+        });
+      } else {
+        const txtInput = qEl.querySelector('input[type=text]');
+        if (txtInput) txtInput.value = savedAns;
+      }
+    }
+  });
+  checkMobileGradeReadyButton();
+}
+
+function checkMobileGradeReadyButton() {
+  const dept = document.getElementById('dept').value.trim();
+  const empId = document.getElementById('empId').value.trim();
+  if(!dept || !empId) {
+    document.getElementById('gradeBtn').disabled = true;
+    return;
+  }
+  let allAnswered = true;
+  document.querySelectorAll('.sheet .q').forEach((qEl) => {
+    const checkboxes = qEl.querySelectorAll('input[type=checkbox]');
+    if (checkboxes.length > 0) {
+      const hasCheck = qEl.querySelector('input[type=checkbox]:checked');
+      if(!hasCheck) allAnswered = false;
+    } else {
+      const txt = qEl.querySelector('input[type=text]')?.value.trim();
+      if(!txt) allAnswered = false;
+    }
+  });
+  document.getElementById('gradeBtn').disabled = !allAnswered;
 }
 
 function updateMobileQuestionVisibility() {
-  const isMobile=window.innerWidth<=768;
-  const navBar=document.getElementById('mobileNavBar');
-  if(isMobile&&!isGradedCompleted) {
-    navBar.style.display='flex';
-    document.getElementById('mobIndicator').textContent=`${mobileActiveIdx+1} / ${totalExamQsCount}`;
-    document.getElementById('mobPrevBtn').disabled=(mobileActiveIdx===0);
-    document.getElementById('mobNextBtn').disabled=(mobileActiveIdx===totalExamQsCount-1);
-    document.querySelectorAll('.sheet .q').forEach(el=>{
-      el.classList.toggle('active-mobile-q', parseInt(el.dataset.qidx)===mobileActiveIdx);
+  const isMobile = window.innerWidth <= 768;
+  const navBar = document.getElementById('mobileNavBar');
+  
+  if (isMobile && !isGradedCompleted) {
+    navBar.style.display = 'flex';
+    document.getElementById('mobIndicator').textContent = `문항 ${mobileActiveIdx + 1} / ${totalExamQsCount}`;
+    document.getElementById('mobPrevBtn').disabled = (mobileActiveIdx === 0);
+    document.getElementById('mobNextBtn').disabled = (mobileActiveIdx === totalExamQsCount - 1);
+    
+    document.querySelectorAll('.sheet .q').forEach((el) => {
+      if (parseInt(el.dataset.qidx) === mobileActiveIdx) { el.classList.add('active-mobile-q'); }
+      else { el.classList.remove('active-mobile-q'); }
     });
   } else {
-    navBar.style.display='none';
-    document.querySelectorAll('.sheet .q').forEach(el=>{ el.classList.remove('active-mobile-q'); el.style.display=''; });
+    navBar.style.display = 'none';
+    document.querySelectorAll('.sheet .q').forEach((el) => { el.classList.remove('active-mobile-q'); el.style.display = ''; });
   }
 }
+
 window.addEventListener('resize', updateMobileQuestionVisibility);
 
 function changeMobileQuestion(dir) {
-  let next=mobileActiveIdx+dir;
-  if(next>=0&&next<totalExamQsCount) {
-    mobileActiveIdx=next;
+  let nextIdx = mobileActiveIdx + dir;
+  if (nextIdx >= 0 && nextIdx < totalExamQsCount) {
+    mobileActiveIdx = nextIdx;
     updateMobileQuestionVisibility();
-    document.querySelector('.sheet').scrollIntoView({behavior:'smooth',block:'start'});
+    document.querySelector('.sheet').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 
 function abortToDashboard() {
-  document.getElementById('sheet').style.display='none';
-  document.getElementById('examControlBar').style.display='none';
-  document.getElementById('mobileNavBar').style.display='none';
-  document.getElementById('scorebox').style.display='none';
-  sessionStorage.removeItem('sms_active_assign_id');
+  document.getElementById('sheet').style.display = 'none';
+  document.getElementById('examControlBar').style.display = 'none';
+  document.getElementById('mobileNavBar').style.display = 'none';
+  document.getElementById('scorebox').style.display = 'none';
+  localStorage.removeItem('sms_active_assign_id');
   showMainInterface();
 }
 
 function actionGradeExam() {
-  const dept=document.getElementById('dept').value.trim();
-  const empId=document.getElementById('empId').value.trim();
-  if(!dept||!empId) return alert('소속 및 사번을 먼저 기입해 주세요.');
-  const target=assignedExams.find(a=>a.id===activeTakeAssignId);
-  let total=0, maxScore=0;
+  const dept = document.getElementById('dept').value.trim();
+  const empId = document.getElementById('empId').value.trim();
+  if(!dept || !empId) return alert('정보를 기입해 주세요.');
+
+  const target = assignedExams.find(a => a.id === activeTakeAssignId);
+  let total = 0, maxScore = 0;
+  
   document.getElementById('sheet').classList.add('graded');
-  document.getElementById('dept').readOnly=true;
-  document.getElementById('empId').readOnly=true;
-  isGradedCompleted=true;
-  target.questions.forEach((q,idx)=>{
+  document.getElementById('dept').readOnly = true; document.getElementById('empId').readOnly = true;
+  isGradedCompleted = true;
+
+  target.questions.forEach((q, idx) => {
     try {
-      const pts=q.points||10; maxScore+=pts;
-      const qEl=document.querySelector(`.q[data-qidx="${idx}"]`); if(!qEl) return;
-      const txtEl=qEl.querySelector('.q-text');
-      let oldIcon=txtEl.querySelector('.result-icon'); if(oldIcon) oldIcon.remove();
-      let icon=document.createElement('span'); icon.className='result-icon';
-      let safeOpts=Array.isArray(q.opts)?q.opts:[];
-      let safeCorrect=Array.isArray(q.correct)?q.correct:String(q.correct||'').split(',').map(s=>s.trim());
-      if((q.type==='mc'||q.type==='mc7')&&safeOpts.length>0) {
-        let checked=[...qEl.querySelectorAll('input[type=checkbox]:checked')].map(c=>c.value);
-        qEl.querySelectorAll('input[type=checkbox]').forEach(cb=>{ if(cb.checked) cb.setAttribute('checked','checked'); });
-        safeCorrect.forEach(v=>qEl.querySelector(`input[value="${v}"]`)?.closest('.opt')?.classList.add('correct-mark'));
-        checked.forEach(v=>{ if(!safeCorrect.includes(v)) qEl.querySelector(`input[value="${v}"]`)?.closest('.opt')?.classList.add('wrong-mark'); });
-        let ok=checked.length===safeCorrect.length&&safeCorrect.every(v=>checked.includes(v));
-        if(ok){total+=pts;icon.textContent='✔ 정답';icon.classList.add('ok');}
-        else{icon.textContent='✘ 오답';icon.classList.add('no');}
+      const pts = q.points || 10; maxScore += pts;
+      const qEl = document.querySelector(`.q[data-qidx="${idx}"]`); 
+      if(!qEl) return;
+      const txtEl = qEl.querySelector('.q-text');
+      
+      let oldIcon = txtEl.querySelector('.result-icon'); if(oldIcon) oldIcon.remove();
+      let icon = document.createElement('span'); icon.className = 'result-icon';
+      
+      let safeOpts = Array.isArray(q.opts) ? q.opts : [];
+      let safeCorrect = Array.isArray(q.correct) ? q.correct : String(q.correct||'').split(',').map(s=>s.trim());
+
+      if((q.type === 'mc' || q.type === 'mc7') && safeOpts.length > 0) {
+        let checked = [...qEl.querySelectorAll('input[type=checkbox]:checked')].map(c => c.value);
+        
+        // 다운로드를 위한 DOM 속성 영구 기록
+        qEl.querySelectorAll('input[type=checkbox]').forEach(cb => {
+          if(cb.checked) cb.setAttribute('checked', 'checked');
+        });
+        
+        safeCorrect.forEach(v => qEl.querySelector(`input[value="${v}"]`)?.closest('.opt')?.classList.add('correct-mark'));
+        checked.forEach(v => { if(!safeCorrect.includes(v)) qEl.querySelector(`input[value="${v}"]`)?.closest('.opt')?.classList.add('wrong-mark'); });
+        let isCorrect = checked.length === safeCorrect.length && safeCorrect.every(v => checked.includes(v));
+        if(isCorrect) { total += pts; icon.textContent = `✔ 정답`; icon.classList.add('ok'); }
+        else { icon.textContent = '✘ 오답'; icon.classList.add('no'); }
       } else {
-        let txtInput=qEl.querySelector('input[type=text]');
-        if(txtInput) txtInput.setAttribute('value',txtInput.value);
-        let val=(txtInput?.value||'').trim().replace(/\s/g,'').toUpperCase();
-        let keywords=(q.keywords||'').split(',').map(k=>k.trim().replace(/\s/g,'').toUpperCase()).filter(Boolean);
-        let ok=keywords.some(k=>val.includes(k));
-        let rev=document.getElementById(`reveal-${idx}`);
-        if(rev){rev.textContent=`✔ 모범 정답: ${q.display||q.keywords||''}`;rev.classList.add('show');}
-        if(ok){total+=pts;icon.textContent='✔ 정답';icon.classList.add('ok');}
-        else{icon.textContent='✘ 오답';icon.classList.add('no');}
+        let txtInput = qEl.querySelector('input[type=text]');
+        if (txtInput) { txtInput.setAttribute('value', txtInput.value); }
+        
+        let val = (txtInput?.value || '').trim().replace(/\s/g,'').toUpperCase();
+        let keywords = (q.keywords || '').split(',').map(k=>k.trim().replace(/\s/g,'').toUpperCase()).filter(Boolean);
+        let isCorrect = keywords.some(k => val.includes(k));
+        
+        let rev = document.getElementById(`reveal-${idx}`);
+        if(rev) { rev.textContent = `✔ 모범 정답: ${q.display || q.keywords || ''}`; rev.classList.add('show'); }
+        
+        if(isCorrect) { total += pts; icon.textContent = `✔ 정답`; icon.classList.add('ok'); }
+        else { icon.textContent = '✘ 오답'; icon.classList.add('no'); }
       }
       txtEl.appendChild(icon);
     } catch(e){}
   });
-  let pass=total>=70;
-  let sb=document.getElementById('scorebox');
-  sb.style.display='block';
-  sb.className='scorebox '+(pass?'pass':'fail');
-  sb.innerHTML=`<div style="font-size:22px;">${pass?'🎉':'😔'} ${total}점 / ${maxScore}점 — ${pass?'합격 (PASS)':'불합격 (FAIL)'}</div>`;
-  document.getElementById('scoreCell').textContent=total+'점';
-  document.getElementById('gradeBtn').disabled=true;
-  document.getElementById('submitBtn').disabled=false;
+
+  let pass = total >= 70;
+  let sb = document.getElementById('scorebox'); sb.style.display = 'block';
+  sb.className = 'scorebox ' + (pass ? 'pass' : 'fail');
+  sb.innerHTML = `<div>결과: ${total}점 / ${maxScore}점</div>`;
+  
+  document.getElementById('scoreCell').textContent = total + '점';
+  document.getElementById('gradeBtn').disabled = true; 
+  document.getElementById('submitBtn').disabled = false;
+  
   updateMobileQuestionVisibility();
-  sb.scrollIntoView({behavior:'smooth',block:'center'});
+  sb.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-async function actionSubmitExam() {
-  if(!confirm('답안을 최종 제출합니까?')) return;
-  const target=assignedExams.find(a=>a.id===activeTakeAssignId);
-  const dept=document.getElementById('dept').value.trim();
-  const empId=document.getElementById('empId').value.trim();
-  const finalScore=parseInt(document.getElementById('scoreCell').textContent)||0;
-  const sheetEl=document.getElementById('sheet');
-  sheetEl.querySelector('#dept').setAttribute('value',dept);
-  sheetEl.querySelector('#empId').setAttribute('value',empId);
-  sheetEl.querySelector('#uname').setAttribute('value',currentUser.name);
-  const resId='res_'+Date.now();
-  const resData={id:resId, username:currentUser.name, dept, empId, examTitle:target.title, score:finalScore, htmlDump:sheetEl.innerHTML};
-  showLoading('Firebase에 제출 중...');
-  try {
-    await fbSet(`examResults/${resId}`, resData);
-    await fbSet(`assignedExams/${target.id}/status`, '제출완료');
-    // 로컬 상태 업데이트
-    target.status='제출완료';
-    sessionStorage.removeItem('sms_progress_'+activeTakeAssignId);
-    sessionStorage.removeItem('sms_active_assign_id');
-    hideLoading();
-    alert('제출 완료되었습니다.');
-    abortToDashboard();
-  } catch(e) { hideLoading(); alert('오류: '+e.message); }
+function actionSubmitExam() {
+  if(!confirm('답안을 최종 전송합니까?')) return;
+  const target = assignedExams.find(a => a.id === activeTakeAssignId);
+  const dept = document.getElementById('dept').value.trim();
+  const empId = document.getElementById('empId').value.trim();
+  const finalScore = parseInt(document.getElementById('scoreCell').textContent) || 0;
+  
+  // dept, empId, uname 값을 HTML에 직접 반영한 뒤 dump
+  const sheetEl = document.getElementById('sheet');
+  sheetEl.querySelector('#dept').setAttribute('value', dept);
+  sheetEl.querySelector('#empId').setAttribute('value', empId);
+  sheetEl.querySelector('#uname').setAttribute('value', currentUser.name);
+  
+  examResults.push({ id: 'res_' + Date.now(), username: currentUser.name, dept: dept, empId: empId, examTitle: target.title, score: finalScore, htmlDump: sheetEl.innerHTML });
+  target.status = '제출완료';
+  
+  localStorage.removeItem('sms_progress_' + activeTakeAssignId);
+  localStorage.removeItem('sms_active_assign_id');
+  
+  localStorage.setItem('sms_assigned', JSON.stringify(assignedExams));
+  localStorage.setItem('sms_results', JSON.stringify(examResults));
+  
+  alert('기록되었습니다.');
+  abortToDashboard();
 }
 
-// ══════════════════════════════════════════
-//  출력
-// ══════════════════════════════════════════
 function printUserResult(resultId) {
-  const res=examResults.find(r=>String(r.id)===String(resultId));
+  const res = examResults.find(r => String(r.id) === String(resultId));
   if(!res) return;
-  const printWindow=window.open('','_blank');
-  if(!printWindow){alert('팝업이 차단되었습니다. 허용 후 다시 시도하세요.');return;}
-  printWindow.document.write(`<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>${escHtml(res.username)}_결과</title>
-  <style>
-    @page{size:A4 portrait;margin:15mm;}
-    body{font-family:"Malgun Gothic",Arial,sans-serif;background:#fff;color:#000;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .sheet{display:block!important;width:100%!important;max-width:680px!important;margin:0 auto!important;padding:0!important;}
-    .header-row{display:flex;align-items:flex-end;border-bottom:3px solid #1648c8;padding-bottom:8px;margin-bottom:18px;}
-    .title{font-size:22px;font-weight:900;color:#0f1c3f;}
-    table.info{width:100%!important;border-collapse:collapse!important;margin-bottom:18px!important;table-layout:fixed!important;border:2px solid #000!important;}
-    table.info td{border:1px solid #000!important;padding:4px 8px!important;height:28px!important;vertical-align:middle!important;font-size:12px!important;color:#000!important;}
-    table.info td.label{background:#f2f2f2!important;font-weight:800!important;text-align:center!important;width:95px!important;}
-    .infoInput{border:none!important;width:100%!important;font-size:12px!important;background:transparent!important;color:#000!important;font-weight:bold;}
-    .notice{background:#f8fafc!important;border-left:4px solid #1648c8!important;padding:10px 14px!important;font-size:12px!important;margin-bottom:18px!important;font-weight:bold;color:#444!important;}
-    .columns{display:flex;border-top:2px solid #1648c8;padding-top:18px;}
-    .col{flex:1;width:50%;padding:0 12px;}
-    .col:first-child{border-right:1px solid #e2e8f0;padding-left:0;}
-    .col:last-child{padding-right:0;}
-    .q{margin-bottom:22px;page-break-inside:avoid;display:block!important;}
-    .q-text{font-size:13px!important;font-weight:700;margin-bottom:8px;line-height:1.5;color:#000;}
-    .q-num{background:#1648c8!important;color:#fff!important;font-size:11px!important;padding:2px 6px!important;border-radius:4px;margin-right:4px;display:inline-block;}
-    .choice-box{border:1px solid #cbd5e0!important;background:#f5f3ff!important;padding:10px!important;font-size:12px!important;font-weight:bold;color:#1e293b!important;}
-    .opt{display:flex;align-items:center;font-size:12.5px!important;margin:4px 0;padding:3px;color:#111;}
-    .opt input[type=checkbox]{width:14px;height:14px;}
-    .opt span.num{font-weight:bold;margin-right:4px;}
-    .opt.correct-mark{background:#dcfce7!important;border-radius:4px;color:#14532d!important;font-weight:bold;}
-    .opt.wrong-mark{background:#fee2e2!important;border-radius:4px;color:#7f1d1d!important;}
-    .result-icon{font-size:11px!important;margin-left:4px;padding:1px 5px!important;border-radius:4px;font-weight:bold;}
-    .result-icon.ok{color:#14532d!important;background:#dcfce7!important;}
-    .result-icon.no{color:#7f1d1d!important;background:#fee2e2!important;}
-    .answer-reveal{margin-top:6px;font-size:12px!important;color:#1648c8!important;font-weight:700;background:#eff6ff!important;padding:5px!important;border-radius:4px;}
-    .blankbox,.shortanswer{border:1px solid #e2e8f0!important;padding:6px!important;background:#fafbff!important;margin-top:4px;font-size:12.5px!important;}
-    .blankbox input[type=text],.shortanswer input[type=text]{background:transparent!important;border:none!important;border-bottom:1px solid #000!important;font-size:12.5px!important;color:#000!important;width:120px;}
-  </style></head><body><div class="sheet">${res.htmlDump}</div></body></html>`);
+  
+  const printWindow = window.open('', '_blank');
+  if(!printWindow) { alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도하세요.'); return; }
+  printWindow.document.write(`<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>${escHtml(res.username)}_결과</title>`);
+  printWindow.document.write(`<style>
+    @page { size: A4 portrait; margin: 15mm 15mm 15mm 15mm; }
+    body { font-family: "Malgun Gothic", Arial, sans-serif; background:#fff; color:#000; margin:0; padding:0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .sheet { display:block !important; width:100% !important; max-width:680px !important; margin:0 auto !important; padding:0 !important; }
+    .header-row { display:flex; align-items:flex-end; border-bottom:3px solid #1a4fb4; padding-bottom:8px; margin-bottom:18px; }
+    .title { font-size:22px; font-weight:900; color:#1a2a50; }
+    table.info { width:100% !important; border-collapse:collapse !important; margin-bottom:18px !important; table-layout:fixed !important; border:2px solid #000 !important; }
+    table.info td { border:1px solid #000 !important; padding:4px 8px !important; height:28px !important; vertical-align:middle !important; font-size:12px !important; color:#000 !important; overflow:hidden; text-overflow:ellipsis; }
+    table.info td.label { background:#f2f2f2 !important; font-weight:800 !important; text-align:center !important; width:95px !important; }
+    .infoInput { border:none !important; width:100% !important; font-size:12px !important; background:transparent !important; color:#000 !important; font-weight:bold; }
+    .notice { background:#f8fafc !important; border-left:4px solid #1a4fb4 !important; padding:10px 14px !important; font-size:12px !important; margin-bottom:18px !important; font-weight:bold; color:#444 !important; }
+    .columns { display:flex; border-top:2px solid #1a4fb4; padding-top:18px; }
+    .col { flex:1; width:50%; padding:0 12px; }
+    .col:first-child { border-right:1px solid #cbd5e0; padding-left:0; }
+    .col:last-child { padding-right:0; }
+    .q { margin-bottom:22px; page-break-inside:avoid; display:block !important; }
+    .q-text { font-size:13px !important; font-weight:700; margin-bottom:8px; line-height:1.5; color:#000; }
+    .q-num { background:#1a4fb4 !important; color:#fff !important; font-size:11px !important; padding:2px 6px !important; border-radius:4px; margin-right:4px; display:inline-block; }
+    .choice-box { border:1px solid #cbd5e0 !important; background:#f4f7ff !important; padding:10px !important; font-size:12px !important; font-weight:bold; color:#2d3748 !important;}
+    .opt { display:flex; align-items:center; font-size:12.5px !important; margin:4px 0; padding:3px; color:#111; }
+    .opt input[type=checkbox] { width:14px; height:14px; }
+    .opt span.num { font-weight:bold; margin-right:4px; }
+    .opt.correct-mark { background:#c6f6d5 !important; border-radius:4px; color:#22543d !important; font-weight:bold; }
+    .opt.wrong-mark { background:#fed7d7 !important; border-radius:4px; color:#742a2a !important; }
+    .result-icon { font-size:11px !important; margin-left:4px; padding:1px 5px !important; border-radius:4px; font-weight:bold; }
+    .result-icon.ok { color:#22543d !important; background:#c6f6d5 !important; }
+    .result-icon.no { color:#742a2a !important; background:#fed7d7 !important; }
+    .answer-reveal { margin-top:6px; font-size:12px !important; color:#1a4fb4 !important; font-weight:700; background:#ebf8ff !important; padding:5px !important; border-radius:4px; }
+    .blankbox, .shortanswer { border:1px solid #cbd5e0 !important; padding:6px !important; background:#fafbff !important; margin-top:4px; font-size:12.5px !important; }
+    .blankbox input[type=text], .shortanswer input[type=text] { background:transparent !important; border:none !important; border-bottom:1px solid #000 !important; font-size:12.5px !important; color:#000 !important; width:120px; }
+  </style></head><body>`);
+  
+  printWindow.document.write(`<div class="sheet">${res.htmlDump}</div>`);
+  printWindow.document.write(`</body></html>`);
   printWindow.document.close();
   printWindow.focus();
-  setTimeout(()=>{ printWindow.print(); }, 600);
+  setTimeout(() => { printWindow.print(); }, 600);
 }
 </script>
 </body>
